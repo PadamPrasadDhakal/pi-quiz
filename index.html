@@ -2260,6 +2260,7 @@
             if (state.answers[qIdx] !== null) return;
             state.answers[qIdx] = optIdx;
             if (optIdx === QUESTIONS[qIdx].a) state.score++;
+            updateQuestionButtonState(qIdx); // Update grid immediately after answer
             renderQuestion();
             // auto advance after short delay if not last
             if (qIdx < QUESTIONS.length - 1) {
@@ -2469,6 +2470,7 @@
         //  9.  START
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+        renderQuestionGrid();
         renderQuestion();
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
