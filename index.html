@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PI Quiz</title>
+    <style>
+        /* ─────────── RESET & BASE ─────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f5f7fb 0%, #e9ecf3 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ─────────── CARD ─────────── */
+        .quiz-container {
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0, 20, 40, 0.15), 0 8px 24px rgba(0, 0, 0, 0.05);
+            max-width: 820px;
+            width: 100%;
+            padding: 36px 40px 44px;
+            transition: all 0.25s ease;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 24px 18px 28px;
+                border-radius: 24px;
+            }
+        }
+
+        /* ─────────── HEADER ─────────── */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px 16px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #f0f2f7;
+            padding-bottom: 20px;
+        }
+
+        .quiz-title {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #0b1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-title span {
+            background: #2a4b7c;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 2px 14px;
+            border-radius: 40px;
+            letter-spacing: 0.2px;
+        }
+
+        .score-badge {
+            background: #eef3fc;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #1a3a6a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .score-badge strong {
+            font-size: 20px;
+            color: #0b2a5c;
+        }
+
+        /* ─────────── PROGRESS BAR ─────────── */
+        .progress-wrapper {
+            margin-bottom: 24px;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: #3e5a7a;
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: #e5eaf2;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2a6bb0, #4a8fd8);
+            border-radius: 20px;
+            transition: width 0.35s ease;
+        }
+
+        /* ─────────── QUESTION ─────────── */
+        .question-area {
+            margin: 10px 0 24px;
+        }
+
+        .q-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5a7a9a;
+            letter-spacing: 0.3px;
+            margin-bottom: 10px;
+        }
+
+        .q-text {
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #0b1e34;
+            margin-bottom: 24px;
+        }
+
+        /* ─────────── OPTIONS ─────────── */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            background: #f8faff;
+            border: 2px solid #e2e8f2;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1a2f48;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: #f0f6ff;
+            border-color: #b6cbe6;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(26, 67, 133, 0.08);
+        }
+
+        .option-btn .letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e8eef9;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1f4a7a;
+            flex-shrink: 0;
+            transition: 0.15s;
+        }
+
+        .option-btn.selected {
+            border-color: #2a6bb0;
+            background: #ecf4fe;
+        }
+
+        .option-btn.selected .letter {
+            background: #2a6bb0;
+            color: #fff;
+        }
+
+        .option-btn.correct {
+            border-color: #1a9e5a;
+            background: #e6f7ee;
+        }
+
+        .option-btn.correct .letter {
+            background: #1a9e5a;
+            color: #fff;
+        }
+
+        .option-btn.wrong {
+            border-color: #c73a3a;
+            background: #fdecec;
+        }
+
+        .option-btn.wrong .letter {
+            background: #c73a3a;
+            color: #fff;
+        }
+
+        .option-btn.disabled {
+            cursor: default;
+            opacity: 0.75;
+        }
+
+        .option-btn.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ─────────── FEEDBACK ─────────── */
+        .feedback {
+            margin-top: 20px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-weight: 500;
+            font-size: 15px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #f4f7fc;
+        }
+
+        .feedback.show {
+            display: flex;
+        }
+
+        .feedback.correct {
+            background: #e1f5e9;
+            color: #0f6e3a;
+        }
+
+        .feedback.wrong {
+            background: #fde8e8;
+            color: #a32b2b;
+        }
+
+        /* ─────────── NAVIGATION ─────────── */
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 28px;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 15px;
+            background: #eef3fc;
+            color: #1d3e66;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            flex: 0 1 auto;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #dce6f5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(26, 67, 133, 0.10);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .nav-btn.primary {
+            background: #1f4a7a;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(26, 67, 133, 0.25);
+        }
+
+        .nav-btn.primary:hover:not(:disabled) {
+            background: #123a62;
+            box-shadow: 0 8px 24px rgba(26, 67, 133, 0.30);
+        }
+
+        .nav-btn .icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .jump-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .jump-input label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #3a5a7a;
+        }
+
+        .jump-input input {
+            width: 70px;
+            padding: 8px 6px;
+            border: 2px solid #dce3ef;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            background: #fafcff;
+            color: #0b1e34;
+            transition: 0.15s;
+        }
+
+        .jump-input input:focus {
+            outline: none;
+            border-color: #2a6bb0;
+            box-shadow: 0 0 0 4px rgba(42, 107, 176, 0.10);
+        }
+
+        .jump-input button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 30px;
+            background: #e8eef9;
+            font-weight: 600;
+            font-size: 14px;
+            color: #1d3e66;
+            cursor: pointer;
+            transition: 0.12s;
+        }
+
+        .jump-input button:hover {
+            background: #d0def0;
+        }
+
+        /* ─────────── RESULT SCREEN ─────────── */
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 28px 10px 12px;
+        }
+
+        .result-screen.show {
+            display: block;
+        }
+
+        .result-icon {
+            font-size: 64px;
+            margin-bottom: 12px;
+        }
+
+        .result-score {
+            font-size: 56px;
+            font-weight: 800;
+            color: #0b1e34;
+            letter-spacing: -1px;
+        }
+
+        .result-score span {
+            font-size: 28px;
+            font-weight: 500;
+            color: #5a7a9a;
+        }
+
+        .result-msg {
+            font-size: 20px;
+            font-weight: 500;
+            color: #1f3a5a;
+            margin: 8px 0 18px;
+        }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0 28px;
+            flex-wrap: wrap;
+        }
+
+        .result-stats div {
+            text-align: center;
+        }
+
+        .result-stats .num {
+            font-size: 30px;
+            font-weight: 700;
+            color: #0b1e34;
+        }
+
+        .result-stats .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5a7a9a;
+        }
+
+        .result-stats .num.green {
+            color: #1a9e5a;
+        }
+        .result-stats .num.red {
+            color: #c73a3a;
+        }
+        .result-stats .num.blue {
+            color: #2a6bb0;
+        }
+
+        .restart-btn {
+            padding: 14px 48px;
+            border: none;
+            border-radius: 60px;
+            background: #1f4a7a;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 6px 20px rgba(26, 67, 133, 0.25);
+        }
+
+        .restart-btn:hover {
+            background: #123a62;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(26, 67, 133, 0.30);
+        }
+
+        /* ─────────── RESPONSIVE TWEAKS ─────────── */
+        @media (max-width: 600px) {
+            .quiz-title {
+                font-size: 20px;
+            }
+            .quiz-title span {
+                font-size: 12px;
+                padding: 0 12px;
+            }
+            .q-text {
+                font-size: 18px;
+            }
+            .option-btn {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            .nav-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-btn {
+                justify-content: center;
+                padding: 12px 16px;
+            }
+            .jump-input {
+                justify-content: center;
+            }
+            .result-score {
+                font-size: 40px;
+            }
+            .result-stats {
+                gap: 20px;
+            }
+        }
+
+        /* ─────────── QUESTION SELECTOR PANEL ─────────── */
+        .question-selector {
+            background: #f8faff;
+            border-radius: 16px;
+            border: 2px solid #e2e8f2;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .selector-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a3a6a;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selector-stats {
+            font-size: 13px;
+            font-weight: 500;
+            color: #5a7a9a;
+            background: #e8eef9;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .question-btn {
+            aspect-ratio: 1;
+            border: 2px solid #d0def0;
+            background: #ffffff;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #1a3a6a;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .question-btn:hover:not(.answered):not(.expired) {
+            background: #f0f6ff;
+            border-color: #b6cbe6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 67, 133, 0.10);
+        }
+
+        .question-btn.current {
+            background: #2a6bb0;
+            color: #fff;
+            border-color: #2a6bb0;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(42, 107, 176, 0.30);
+            transform: scale(1.05);
+        }
+
+        .question-btn.answered {
+            background: #e1f5e9;
+            color: #1a9e5a;
+            border-color: #1a9e5a;
+            font-weight: 700;
+        }
+
+        .question-btn.expired {
+            opacity: 0.35;
+            cursor: not-allowed;
+            color: #9ab0cc;
+            background: #f0f2f7;
+            border-color: #e2e8f2;
+        }
+
+        .question-btn.expired:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ─────────── SCROLLBAR ─────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #eef2f8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #bccde2;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ab0cc;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="app">
+        <!-- HEADER -->
+        <header class="quiz-header">
+            <div class="quiz-title">
+                ⚡ PI Quiz
+            </div>
+            <div class="score-badge">
+                🏆 Score&nbsp; <strong id="scoreDisplay">0</strong>
+            </div>
+        </header>
+
+        <!-- PROGRESS -->
+        <div class="progress-wrapper">
+            <div class="progress-meta">
+                <span id="progressLabel">Question 1 of 500</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- QUESTION SELECTOR -->
+        <div class="question-selector">
+            <div class="selector-header">
+                📋 Pick a Question
+                <span class="selector-stats">
+                    <span id="answeredCount">0</span>/<span id="totalCount">500</span> answered
+                </span>
+            </div>
+            <div class="question-grid" id="questionGrid">
+                <!-- question buttons injected by JS -->
+            </div>
+        </div>
+
+        <!-- QUESTION AREA -->
+        <div id="questionArea">
+            <div class="question-area">
+                <div class="q-number" id="qNumber">Q1</div>
+                <div class="q-text" id="qText">Loading questions…</div>
+            </div>
+
+            <div class="options-grid" id="optionsContainer">
+                <!-- options injected by JS -->
+            </div>
+
+            <div class="feedback" id="feedback">
+                <span id="feedbackIcon">✓</span>
+                <span id="feedbackText">Correct!</span>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div class="result-screen" id="resultScreen">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <div class="result-score" id="resultScore">0 <span>/ 500</span></div>
+            <div class="result-msg" id="resultMsg">Great job!</div>
+            <div class="result-stats">
+                <div><div class="num green" id="rCorrect">0</div><div class="label">Correct</div></div>
+                <div><div class="num red" id="rWrong">0</div><div class="label">Wrong</div></div>
+                <div><div class="num blue" id="rSkipped">0</div><div class="label">Skipped</div></div>
+            </div>
+            <button class="restart-btn" id="restartBtn">🔄 Restart Quiz</button>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="nav-controls" id="navControls">
+            <button class="nav-btn" id="prevBtn" disabled>
+                <span class="icon">‹</span> Previous
+            </button>
+
+            <div class="jump-input">
+                <label for="jumpInput">Go to</label>
+                <input type="number" id="jumpInput" min="0" max="499" value="1" />
+                <button id="jumpBtn">Go</button>
+            </div>
+
+            <button class="nav-btn primary" id="nextBtn">
+                Next <span class="icon">›</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  1.  QUESTION BANK  (500 questions)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const QUESTIONS = [];
+
+        // ----- helper to push a question -----
+        function addQ(q) {
+            QUESTIONS.push(q);
+        }
+
+        // ----- categories & templates -----
+        const techTopics = [
+            'hardware', 'os', 'networking', 'programming',
+            'web', 'databases', 'security', 'internet',
+            'software', 'digital'
+        ];
+
+        // 1) Hardware (0–49)
+        const hardwareQ = [
+            { q: 'What does CPU stand for?', o: ['Central Processing Unit', 'Central Program Unit',
+                    'Computer Personal Unit', 'Core Processing Utility'
+                ], a: 0 },
+            { q: 'Which component is known as the "brain" of the computer?', o: ['CPU', 'RAM', 'Hard Drive',
+                    'GPU'
+                ], a: 0 },
+            { q: 'What is the primary function of RAM?', o: ['Temporary data storage', 'Permanent storage',
+                    'Processing data', 'Display output'
+                ], a: 0 },
+            { q: 'Which of these is a storage device?', o: ['SSD', 'CPU', 'RAM', 'Motherboard'], a: 0 },
+            { q: 'What does GPU stand for?', o: ['Graphics Processing Unit', 'General Purpose Unit',
+                    'Graphical Program Utility', 'Gaming Processor Unit'
+                ], a: 0 },
+            { q: 'Which port is commonly used to connect a mouse?', o: ['USB', 'HDMI', 'Ethernet', 'VGA'],
+                a: 0 },
+            { q: 'What is the function of a motherboard?', o: ['Connects all components', 'Stores data',
+                    'Processes graphics', 'Provides power'
+                ], a: 0 },
+            { q: 'Which of the following is a type of non-volatile memory?', o: ['ROM', 'RAM', 'Cache',
+                    'Register'
+                ], a: 0 },
+            { q: 'What is the typical unit of processor speed?', o: ['GHz', 'MB/s', 'GB', 'MHz'], a: 0 },
+            { q: 'Which device is used to input audio into a computer?', o: ['Microphone', 'Speaker',
+                    'Headphone', 'Monitor'
+                ], a: 0 },
+            { q: 'What does SSD stand for?', o: ['Solid State Drive', 'Super Speed Drive',
+                    'Serial Storage Device', 'System Storage Drive'
+                ], a: 0 },
+            { q: 'Which of these is an output device?', o: ['Monitor', 'Keyboard', 'Mouse', 'Scanner'],
+                a: 0 },
+            { q: 'What is the role of a power supply unit (PSU)?', o: ['Converts AC to DC power',
+                    'Stores data', 'Processes graphics', 'Connects to network'
+                ], a: 0 },
+            { q: 'Which bus connects the CPU to memory?', o: ['Front Side Bus', 'PCI Bus', 'USB Bus',
+                    'SATA Bus'
+                ], a: 0 },
+            { q: 'What is cache memory used for?', o: ['Speeds up data access', 'Permanent storage',
+                    'Network communication', 'Display output'
+                ], a: 0 },
+            { q: 'Which of the following is a type of printer?', o: ['Laser', 'LED', 'LCD', 'OLED'], a: 0 },
+            { q: 'What is the function of a network interface card (NIC)?', o: ['Connects to a network',
+                    'Processes data', 'Stores files', 'Displays graphics'
+                ], a: 0 },
+            { q: 'Which storage technology uses spinning disks?', o: ['HDD', 'SSD', 'RAM', 'ROM'], a: 0 },
+            { q: 'What is the purpose of a heatsink?', o: ['Disperses heat', 'Stores data', 'Processes audio',
+                    'Connects peripherals'
+                ], a: 0 },
+            { q: 'Which of these is a type of expansion slot?', o: ['PCIe', 'SATA', 'USB', 'HDMI'], a: 0 },
+            { q: 'What does BIOS stand for?', o: ['Basic Input Output System', 'Binary Input Output System',
+                    'Basic Integrated Operating System', 'Boot Initialization Operating System'
+                ], a: 0 },
+            { q: 'Which component is used for temporary storage during calculations?', o: ['Register',
+                    'Hard Drive', 'SSD', 'CD-ROM'
+                ], a: 0 },
+            { q: 'What is the function of a sound card?', o: ['Processes audio signals', 'Processes video',
+                    'Stores data', 'Connects to internet'
+                ], a: 0 },
+            { q: 'Which port is typically used for a monitor?', o: ['HDMI', 'USB', 'Ethernet', 'Audio'],
+                a: 0 },
+            { q: 'What is the difference between HDD and SSD?', o: ['HDD uses disks, SSD uses flash memory',
+                    'SSD is slower', 'HDD is more expensive', 'No difference'
+                ], a: 0 },
+            { q: 'Which of the following is a type of ROM?', o: ['PROM', 'RAM', 'Cache', 'Register'], a: 0 },
+            { q: 'What is the role of the chipset?', o: ['Manages data flow between components',
+                    'Processes graphics', 'Stores data', 'Provides power'
+                ], a: 0 },
+            { q: 'Which of these is a peripheral device?', o: ['Keyboard', 'CPU', 'RAM', 'Motherboard'],
+                a: 0 },
+            { q: 'What is the maximum USB 3.0 data transfer rate?', o: ['5 Gbps', '480 Mbps', '10 Gbps',
+                    '1 Gbps'
+                ], a: 0 },
+            { q: 'Which type of memory is volatile?', o: ['RAM', 'ROM', 'Hard Drive', 'SSD'], a: 0 },
+            { q: 'What does a modem do?', o: ['Modulates and demodulates signals', 'Stores data',
+                    'Processes graphics', 'Connects peripherals'
+                ], a: 0 },
+            { q: 'Which of these is used for video output?', o: ['GPU', 'CPU', 'RAM', 'PSU'], a: 0 },
+            { q: 'What is the function of a router?', o: ['Directs network traffic', 'Stores data',
+                    'Processes audio', 'Displays video'
+                ], a: 0 },
+            { q: 'Which port is used for Ethernet cables?', o: ['RJ-45', 'USB', 'HDMI', 'VGA'], a: 0 },
+            { q: 'What is the purpose of a cooling fan?', o: ['Prevents overheating', 'Stores data',
+                    'Processes audio', 'Connects to network'
+                ], a: 0 },
+            { q: 'Which of the following is a type of optical drive?', o: ['DVD-ROM', 'SSD', 'HDD',
+                    'Flash drive'
+                ], a: 0 },
+            { q: 'What is the function of a keyboard?', o: ['Input device for text', 'Output device',
+                    'Storage device', 'Processing device'
+                ], a: 0 },
+            { q: 'Which component determines the computer\'s speed?', o: ['CPU', 'RAM', 'Hard Drive',
+                    'Motherboard'
+                ], a: 0 },
+            { q: 'What is the role of a surge protector?', o: ['Protects from power surges', 'Stores data',
+                    'Processes video', 'Connects to network'
+                ], a: 0 },
+            { q: 'Which of these is a wireless communication standard?', o: ['Bluetooth', 'USB', 'HDMI',
+                    'VGA'
+                ], a: 0 },
+            { q: 'What is the function of a scanner?', o: ['Digitizes documents', 'Prints documents',
+                    'Stores documents', 'Displays documents'
+                ], a: 0 },
+            { q: 'Which type of display uses LEDs?', o: ['LED monitor', 'CRT', 'Plasma', 'OLED'], a: 0 },
+            { q: 'What is the purpose of a joystick?', o: ['Input device for gaming', 'Output device',
+                    'Storage device', 'Processing device'
+                ], a: 0 },
+            { q: 'Which of the following is a type of memory module?', o: ['DIMM', 'CPU', 'GPU', 'PSU'],
+                a: 0 },
+            { q: 'What is the function of a webcam?', o: ['Captures video', 'Captures audio', 'Stores data',
+                    'Processes data'
+                ], a: 0 },
+            { q: 'Which port is commonly used for audio output?', o: ['3.5mm jack', 'USB', 'HDMI',
+                    'Ethernet'
+                ], a: 0 },
+            { q: 'What is the role of a touchpad?', o: ['Input device for laptops', 'Output device',
+                    'Storage device', 'Processing device'
+                ], a: 0 },
+            { q: 'Which component stores the operating system?', o: ['Hard Drive', 'CPU', 'RAM',
+                    'Motherboard'
+                ], a: 0 },
+            { q: 'What is a common use of a flash drive?', o: ['Portable storage', 'Processing data',
+                    'Display output', 'Network connectivity'
+                ], a: 0 },
+        ];
+        hardwareQ.forEach(q => addQ(q));
+
+        // 2) Operating Systems (50–99)
+        const osQ = [
+            { q: 'Which of these is an operating system?', o: ['Windows', 'Microsoft Office', 'Adobe Photoshop',
+                    'Google Chrome'
+                ], a: 0 },
+            { q: 'What is the kernel of an OS?', o: ['Core component', 'File manager', 'Web browser',
+                    'Antivirus'
+                ], a: 0 },
+            { q: 'Which OS is open-source?', o: ['Linux', 'Windows', 'macOS', 'iOS'], a: 0 },
+            { q: 'What is a process?', o: ['Program in execution', 'File on disk', 'Network packet',
+                    'Memory address'
+                ], a: 0 },
+            { q: 'What does GUI stand for?', o: ['Graphical User Interface', 'General User Input',
+                    'Graphics Utility Interface', 'Global User Interface'
+                ], a: 0 },
+            { q: 'Which of these is a file system?', o: ['NTFS', 'HTTP', 'TCP', 'IP'], a: 0 },
+            { q: 'What is the function of an OS scheduler?', o: ['Manages processes', 'Stores data',
+                    'Processes graphics', 'Connects networks'
+                ], a: 0 },
+            { q: 'Which OS is developed by Apple?', o: ['macOS', 'Windows', 'Linux', 'Android'], a: 0 },
+            { q: 'What is the command line interface (CLI)?', o: ['Text-based interface', 'Graphical interface',
+                    'Touch interface', 'Voice interface'
+                ], a: 0 },
+            { q: 'Which of these is a Linux distribution?', o: ['Ubuntu', 'Windows 10', 'macOS Big Sur',
+                    'iOS'
+                ], a: 0 },
+            { q: 'What is a shell in Unix/Linux?', o: ['Command interpreter', 'Kernel component',
+                    'File system', 'Network protocol'
+                ], a: 0 },
+            { q: 'Which OS is commonly used on servers?', o: ['Linux', 'Windows', 'macOS', 'iOS'], a: 0 },
+            { q: 'What is the purpose of an operating system?', o: ['Manages hardware and software',
+                    'Stores data', 'Processes graphics', 'Connects to internet'
+                ], a: 0 },
+            { q: 'Which of these is a type of OS interface?', o: ['CUI', 'GUI', 'CLI', 'All of the above'],
+                a: 3 },
+            { q: 'What is a file descriptor?', o: ['Handle to a file', 'File name', 'File size',
+                    'File type'
+                ], a: 0 },
+            { q: 'Which OS uses the APT package manager?', o: ['Ubuntu', 'Windows', 'macOS', 'Android'],
+                a: 0 },
+            { q: 'What is the role of memory management in OS?', o: ['Allocates memory to processes',
+                    'Stores files', 'Processes data', 'Manages network'
+                ], a: 0 },
+            { q: 'Which of these is a real-time operating system?', o: ['VxWorks', 'Windows', 'Linux',
+                    'macOS'
+                ], a: 0 },
+            { q: 'What is a bootloader?', o: ['Loads the OS', 'Stores data', 'Processes graphics',
+                    'Manages network'
+                ], a: 0 },
+            { q: 'Which OS is based on the Linux kernel?', o: ['Android', 'Windows', 'macOS', 'iOS'],
+                a: 0 },
+            { q: 'What is the function of a device driver?', o: ['Communicates with hardware',
+                    'Stores data', 'Processes audio', 'Displays video'
+                ], a: 0 },
+            { q: 'Which of these is a mobile OS?', o: ['iOS', 'Windows', 'Linux', 'macOS'], a: 0 },
+            { q: 'What is a thread?', o: ['Unit of execution within a process', 'File on disk',
+                    'Network connection', 'Memory block'
+                ], a: 0 },
+            { q: 'Which OS uses the Windows Registry?', o: ['Windows', 'Linux', 'macOS', 'Android'],
+                a: 0 },
+            { q: 'What is the purpose of system calls?', o: ['Request services from the OS', 'Store data',
+                    'Process graphics', 'Connect networks'
+                ], a: 0 },
+            { q: 'Which of these is a file system used by Linux?', o: ['ext4', 'NTFS', 'FAT32', 'HFS+'],
+                a: 0 },
+            { q: 'What is a daemon?', o: ['Background process', 'File type', 'Network protocol',
+                    'User interface'
+                ], a: 0 },
+            { q: 'Which OS is known for its security features?', o: ['Linux', 'Windows', 'macOS',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is the function of the OS file manager?', o: ['Organizes files and folders',
+                    'Manages processes', 'Controls hardware', 'Handles networking'
+                ], a: 0 },
+            { q: 'Which of these is a multi-user OS?', o: ['Linux', 'Windows', 'macOS', 'All of the above'],
+                a: 3 },
+            { q: 'What is a package manager?', o: ['Installs software', 'Manages files', 'Controls hardware',
+                    'Processes data'
+                ], a: 0 },
+            { q: 'Which OS uses the .dmg format for installers?', o: ['macOS', 'Windows', 'Linux',
+                    'Android'
+                ], a: 0 },
+            { q: 'What is the role of the OS in multitasking?', o: ['Runs multiple processes simultaneously',
+                    'Stores data', 'Processes graphics', 'Connects networks'
+                ], a: 0 },
+            { q: 'Which of these is a process state?', o: ['Running', 'Waiting', 'Terminated',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is the purpose of virtual memory?', o: ['Extends physical memory', 'Stores files',
+                    'Processes graphics', 'Manages network'
+                ], a: 0 },
+            { q: 'Which OS is commonly used in supercomputers?', o: ['Linux', 'Windows', 'macOS', 'iOS'],
+                a: 0 },
+            { q: 'What is a system administrator?', o: ['Manages computer systems', 'Writes code',
+                    'Designs hardware', 'Creates graphics'
+                ], a: 0 },
+            { q: 'Which of these is an OS command?', o: ['ls', 'SELECT', 'INSERT', 'UPDATE'], a: 0 },
+            { q: 'What is the function of the OS boot process?', o: ['Starts the OS', 'Stores data',
+                    'Processes graphics', 'Connects to network'
+                ], a: 0 },
+            { q: 'Which OS uses the APFS file system?', o: ['macOS', 'Windows', 'Linux', 'Android'],
+                a: 0 },
+            { q: 'What is a service in Windows?', o: ['Background process', 'File type', 'Network protocol',
+                    'User interface'
+                ], a: 0 },
+            { q: 'Which of these is a type of OS architecture?', o: ['Monolithic', 'Microkernel', 'Hybrid',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is the purpose of an OS API?', o: ['Allows applications to interact with OS',
+                    'Stores data', 'Processes graphics', 'Connects networks'
+                ], a: 0 },
+            { q: 'Which OS is used on the iPhone?', o: ['iOS', 'Android', 'Windows', 'Linux'], a: 0 },
+            { q: 'What is a filesystem inode?', o: ['Metadata structure for files', 'File content',
+                    'Directory entry', 'Network socket'
+                ], a: 0 },
+            { q: 'Which of these is a command-line shell?', o: ['Bash', 'Windows Explorer', 'Finder',
+                    'Dock'
+                ], a: 0 },
+            { q: 'What is the role of an OS in security?', o: ['Controls access to resources', 'Stores data',
+                    'Processes graphics', 'Connects networks'
+                ], a: 0 },
+            { q: 'Which OS uses the .exe extension?', o: ['Windows', 'Linux', 'macOS', 'Android'],
+                a: 0 },
+            { q: 'What is a system image?', o: ['Backup of the entire OS', 'File type', 'Network protocol',
+                    'User interface'
+                ], a: 0 },
+            { q: 'Which OS is designed for embedded systems?', o: ['Embedded Linux', 'Windows 10', 'macOS',
+                    'iOS'
+                ], a: 0 },
+        ];
+        osQ.forEach(q => addQ(q));
+
+        // 3) Networking (100–149)
+        const netQ = [
+            { q: 'What does IP stand for?', o: ['Internet Protocol', 'Internal Program',
+                    'Integrated Protocol', 'International Protocol'
+                ], a: 0 },
+            { q: 'What is a LAN?', o: ['Local Area Network', 'Large Area Network', 'Long Access Network',
+                    'Logical Area Network'
+                ], a: 0 },
+            { q: 'What is the OSI model?', o: ['Networking framework', 'Programming language',
+                    'Operating system', 'File system'
+                ], a: 0 },
+            { q: 'Which layer of the OSI model is responsible for routing?', o: ['Network Layer',
+                    'Application Layer', 'Transport Layer', 'Data Link Layer'
+                ], a: 0 },
+            { q: 'What is TCP?', o: ['Transmission Control Protocol', 'Transfer Control Protocol',
+                    'Transport Communication Protocol', 'Transmission Communication Protocol'
+                ], a: 0 },
+            { q: 'What is an IP address?', o: ['Unique identifier for devices', 'File name',
+                    'Network cable', 'Server name'
+                ], a: 0 },
+            { q: 'Which protocol is used for web browsing?', o: ['HTTP', 'FTP', 'SMTP', 'DNS'], a: 0 },
+            { q: 'What is a router?', o: ['Forwards data between networks', 'Stores data', 'Processes graphics',
+                    'Connects peripherals'
+                ], a: 0 },
+            { q: 'What is DNS?', o: ['Domain Name System', 'Data Network Service', 'Digital Name System',
+                    'Distributed Network Service'
+                ], a: 0 },
+            { q: 'Which of these is a transport layer protocol?', o: ['TCP', 'IP', 'HTTP', 'FTP'], a: 0 },
+            { q: 'What is a subnet mask?', o: ['Defines network and host portions', 'File type',
+                    'Network cable', 'Server name'
+                ], a: 0 },
+            { q: 'What is the function of a switch?', o: ['Connects devices in a LAN', 'Connects to internet',
+                    'Stores data', 'Processes graphics'
+                ], a: 0 },
+            { q: 'Which protocol is used for email?', o: ['SMTP', 'HTTP', 'FTP', 'DNS'], a: 0 },
+            { q: 'What is a firewall?', o: ['Network security device', 'Storage device', 'Graphics processor',
+                    'Input device'
+                ], a: 0 },
+            { q: 'What is the function of a modem?', o: ['Converts signals for transmission', 'Stores data',
+                    'Processes graphics', 'Connects peripherals'
+                ], a: 0 },
+            { q: 'Which protocol is used to transfer files?', o: ['FTP', 'HTTP', 'SMTP', 'DNS'], a: 0 },
+            { q: 'What is an IP address version 4 (IPv4) length?', o: ['32 bits', '64 bits', '128 bits',
+                    '16 bits'
+                ], a: 0 },
+            { q: 'What is a VPN?', o: ['Virtual Private Network', 'Very Private Network',
+                    'Virtual Public Network', 'Verified Private Network'
+                ], a: 0 },
+            { q: 'Which of these is a network topology?', o: ['Star', 'Circle', 'Square', 'Triangle'],
+                a: 0 },
+            { q: 'What is the function of DHCP?', o: ['Assigns IP addresses dynamically', 'Stores data',
+                    'Processes graphics', 'Connects peripherals'
+                ], a: 0 },
+            { q: 'What is a MAC address?', o: ['Hardware identifier', 'IP address', 'Domain name',
+                    'Network protocol'
+                ], a: 0 },
+            { q: 'Which protocol is used for secure web browsing?', o: ['HTTPS', 'HTTP', 'FTP', 'SMTP'],
+                a: 0 },
+            { q: 'What is a network hub?', o: ['Broadcasts data to all ports', 'Routes data between networks',
+                    'Stores data', 'Processes graphics'
+                ], a: 0 },
+            { q: 'What is the function of a gateway?', o: ['Connects different networks', 'Stores data',
+                    'Processes graphics', 'Connects peripherals'
+                ], a: 0 },
+            { q: 'Which protocol is used for remote login?', o: ['SSH', 'HTTP', 'FTP', 'SMTP'], a: 0 },
+            { q: 'What is the OSI model layer count?', o: ['7', '5', '6', '4'], a: 0 },
+            { q: 'What is a WAN?', o: ['Wide Area Network', 'Wireless Area Network',
+                    'Web Access Network', 'Work Area Network'
+                ], a: 0 },
+            { q: 'Which device is used to connect multiple networks?', o: ['Router', 'Switch', 'Hub',
+                    'Bridge'
+                ], a: 0 },
+            { q: 'What is the function of a network bridge?', o: ['Connects two network segments',
+                    'Connects to internet', 'Stores data', 'Processes graphics'
+                ], a: 0 },
+            { q: 'Which protocol is used for network management?', o: ['SNMP', 'HTTP', 'FTP', 'SMTP'],
+                a: 0 },
+            { q: 'What is a packet in networking?', o: ['Unit of data transmitted', 'File type',
+                    'Network cable', 'Server name'
+                ], a: 0 },
+            { q: 'Which of these is a network security protocol?', o: ['SSL/TLS', 'HTTP', 'FTP', 'SMTP'],
+                a: 0 },
+            { q: 'What is a network interface?', o: ['Hardware that connects to a network', 'File type',
+                    'Network protocol', 'Server name'
+                ], a: 0 },
+            { q: 'Which protocol is used for time synchronization?', o: ['NTP', 'HTTP', 'FTP', 'SMTP'],
+                a: 0 },
+            { q: 'What is the function of a repeater?', o: ['Amplifies signals', 'Routes data',
+                    'Stores data', 'Processes graphics'
+                ], a: 0 },
+            { q: 'Which of these is a type of network cable?', o: ['Ethernet cable', 'HDMI cable',
+                    'USB cable', 'Power cable'
+                ], a: 0 },
+            { q: 'What is a proxy server?', o: ['Intermediary between client and server', 'Storage device',
+                    'Graphics processor', 'Input device'
+                ], a: 0 },
+            { q: 'Which protocol is used for file sharing?', o: ['SMB', 'HTTP', 'SMTP', 'DNS'], a: 0 },
+            { q: 'What is a network node?', o: ['Device connected to a network', 'File type',
+                    'Network protocol', 'Server name'
+                ], a: 0 },
+            { q: 'Which of these is a wireless networking standard?', o: ['Wi-Fi', 'Ethernet', 'USB', 'HDMI'],
+                a: 0 },
+            { q: 'What is the function of a load balancer?', o: ['Distributes traffic across servers',
+                    'Stores data', 'Processes graphics', 'Connects peripherals'
+                ], a: 0 },
+            { q: 'Which protocol is used for network address translation?', o: ['NAT', 'HTTP', 'FTP', 'SMTP'],
+                a: 0 },
+            { q: 'What is a network segment?', o: ['Part of a network', 'File type', 'Network protocol',
+                    'Server name'
+                ], a: 0 },
+            { q: 'Which of these is a network diagnostic tool?', o: ['Ping', 'Browser', 'Editor', 'Compiler'],
+                a: 0 },
+            { q: 'What is the function of a network switch?', o: ['Forwards data to specific ports',
+                    'Broadcasts data', 'Stores data', 'Processes graphics'
+                ], a: 0 },
+            { q: 'Which protocol is used for streaming media?', o: ['UDP', 'TCP', 'HTTP', 'FTP'], a: 0 },
+            { q: 'What is a network administrator?', o: ['Manages network infrastructure', 'Writes code',
+                    'Designs hardware', 'Creates graphics'
+                ], a: 0 },
+            { q: 'Which of these is a network topology?', o: ['Ring', 'Line', 'Mesh', 'All of the above'],
+                a: 3 },
+            { q: 'What is the function of a network card?', o: ['Connects computer to network', 'Stores data',
+                    'Processes graphics', 'Connects peripherals'
+                ], a: 0 },
+            { q: 'Which protocol is used for secure email?', o: ['S/MIME', 'HTTP', 'FTP', 'DNS'], a: 0 },
+        ];
+        netQ.forEach(q => addQ(q));
+
+        // 4) Programming (150–199)
+        const progQ = [
+            { q: 'What is a variable?', o: ['Storage location with a name', 'Function name', 'Class name',
+                    'File name'
+                ], a: 0 },
+            { q: 'Which of these is a programming language?', o: ['Python', 'HTML', 'CSS', 'JSON'], a: 0 },
+            { q: 'What is a loop in programming?', o: ['Repeatedly executes code', 'Stores data',
+                    'Processes graphics', 'Connects networks'
+                ], a: 0 },
+            { q: 'What is a function?', o: ['Block of reusable code', 'Variable type', 'Data structure',
+                    'File type'
+                ], a: 0 },
+            { q: 'Which data type is used for whole numbers?', o: ['Integer', 'Float', 'String', 'Boolean'],
+                a: 0 },
+            { q: 'What is an array?', o: ['Collection of elements', 'Single variable', 'Function',
+                    'Class'
+                ], a: 0 },
+            { q: 'What is a condition in programming?', o: ['Boolean expression', 'Loop', 'Function',
+                    'Variable'
+                ], a: 0 },
+            { q: 'Which of these is a high-level language?', o: ['Python', 'Assembly', 'Machine code',
+                    'Binary'
+                ], a: 0 },
+            { q: 'What is a compiler?', o: ['Translates source code to machine code', 'Stores data',
+                    'Processes graphics', 'Connects networks'
+                ], a: 0 },
+            { q: 'Which of these is an interpreted language?', o: ['JavaScript', 'C', 'C++', 'Rust'],
+                a: 0 },
+            { q: 'What is a class in OOP?', o: ['Blueprint for objects', 'Variable type', 'Function',
+                    'Data structure'
+                ], a: 0 },
+            { q: 'What is an object?', o: ['Instance of a class', 'Variable', 'Function', 'File'], a: 0 },
+            { q: 'Which of these is a principle of OOP?', o: ['Inheritance', 'Iteration', 'Compilation',
+                    'Interpretation'
+                ], a: 0 },
+            { q: 'What is a data structure?', o: ['Way to organize data', 'Variable type', 'Function',
+                    'File'
+                ], a: 0 },
+            { q: 'Which of these is a common algorithm?', o: ['Binary search', 'Linear search', 'Bubble sort',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a string?', o: ['Sequence of characters', 'Number', 'Boolean', 'Array'], a: 0 },
+            { q: 'What is a boolean?', o: ['True or false value', 'Number', 'String', 'Array'], a: 0 },
+            { q: 'Which operator is used for assignment?', o: ['=', '==', '===', '!='], a: 0 },
+            { q: 'What is a comment in code?', o: ['Human-readable annotation', 'Executable code',
+                    'Variable', 'Function'
+                ], a: 0 },
+            { q: 'Which of these is a version control system?', o: ['Git', 'SVN', 'Mercurial',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a pointer?', o: ['Stores memory address', 'Stores data', 'Stores function',
+                    'Stores class'
+                ], a: 0 },
+            { q: 'Which of these is a functional language?', o: ['Haskell', 'Java', 'C++', 'Python'],
+                a: 0 },
+            { q: 'What is recursion?', o: ['Function calling itself', 'Loop iteration', 'Data structure',
+                    'Variable type'
+                ], a: 0 },
+            { q: 'Which of these is a web framework?', o: ['Django', 'React', 'Angular', 'All of the above'],
+                a: 3 },
+            { q: 'What is an API?', o: ['Application Programming Interface', 'Advanced Program Integration',
+                    'Automated Program Interface', 'Application Protocol Interface'
+                ], a: 0 },
+            { q: 'Which of these is a database language?', o: ['SQL', 'HTML', 'CSS', 'JavaScript'],
+                a: 0 },
+            { q: 'What is a bug?', o: ['Error in code', 'Feature', 'Function', 'Variable'], a: 0 },
+            { q: 'What is debugging?', o: ['Fixing errors', 'Writing code', 'Compiling code', 'Running code'],
+                a: 0 },
+            { q: 'Which of these is a coding style guide?', o: ['PEP 8', 'HTML5', 'CSS3', 'JSON'],
+                a: 0 },
+            { q: 'What is a library in programming?', o: ['Collection of functions', 'Variable type',
+                    'Data structure', 'File type'
+                ], a: 0 },
+            { q: 'Which of these is a package manager?', o: ['npm', 'pip', 'composer', 'All of the above'],
+                a: 3 },
+            { q: 'What is a stack in data structures?', o: ['LIFO data structure', 'FIFO data structure',
+                    'Array', 'Linked list'
+                ], a: 0 },
+            { q: 'What is a queue?', o: ['FIFO data structure', 'LIFO data structure', 'Array',
+                    'Linked list'
+                ], a: 0 },
+            { q: 'Which of these is a sorting algorithm?', o: ['Quick sort', 'Merge sort', 'Bubble sort',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is an algorithm?', o: ['Step-by-step procedure', 'Data structure', 'Variable',
+                    'Function'
+                ], a: 0 },
+            { q: 'Which of these is a low-level language?', o: ['Assembly', 'Python', 'Java', 'C#'],
+                a: 0 },
+            { q: 'What is a syntax?', o: ['Rules of a language', 'Data structure', 'Algorithm', 'Variable'],
+                a: 0 },
+            { q: 'Which of these is an IDE?', o: ['VS Code', 'Notepad', 'Word', 'Excel'], a: 0 },
+            { q: 'What is a build process?', o: ['Compiling and linking code', 'Writing code', 'Debugging',
+                    'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a testing framework?', o: ['JUnit', 'PyTest', 'Mocha', 'All of the above'],
+                a: 3 },
+            { q: 'What is a repository in version control?', o: ['Stores code history', 'Stores data',
+                    'Stores files', 'Stores functions'
+                ], a: 0 },
+            { q: 'Which of these is a coding paradigm?', o: ['OOP', 'Functional', 'Procedural',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a thread in programming?', o: ['Unit of execution', 'Data structure', 'Variable',
+                    'Function'
+                ], a: 0 },
+            { q: 'Which of these is a concurrency model?', o: ['Multithreading', 'Multiprocessing', 'Async',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a framework?', o: ['Reusable code base', 'Variable', 'Function', 'Data structure'],
+                a: 0 },
+            { q: 'Which of these is a design pattern?', o: ['Singleton', 'Factory', 'Observer',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is refactoring?', o: ['Improving code without changing behavior', 'Adding features',
+                    'Fixing bugs', 'Deleting code'
+                ], a: 0 },
+            { q: 'Which of these is a code review tool?', o: ['GitHub', 'Jira', 'Slack', 'Zoom'], a: 0 },
+            { q: 'What is a build tool?', o: ['Compiles and packages code', 'Writes code', 'Debugs code',
+                    'Tests code'
+                ], a: 0 },
+            { q: 'Which of these is a containerization tool?', o: ['Docker', 'Kubernetes', 'Podman',
+                    'All of the above'
+                ], a: 3 },
+        ];
+        progQ.forEach(q => addQ(q));
+
+        // 5) Web Technologies (200–249)
+        const webQ = [
+            { q: 'What does HTML stand for?', o: ['Hyper Text Markup Language', 'High Tech Markup Language',
+                    'Hyper Transfer Markup Language', 'High Transfer Markup Language'
+                ], a: 0 },
+            { q: 'What is CSS used for?', o: ['Styling web pages', 'Creating web content', 'Server-side logic',
+                    'Database management'
+                ], a: 0 },
+            { q: 'Which of these is a JavaScript framework?', o: ['React', 'Django', 'Laravel', 'Rails'],
+                a: 0 },
+            { q: 'What is the DOM?', o: ['Document Object Model', 'Data Object Model',
+                    'Document Oriented Model', 'Data Oriented Model'
+                ], a: 0 },
+            { q: 'Which of these is a web server?', o: ['Apache', 'Nginx', 'IIS', 'All of the above'],
+                a: 3 },
+            { q: 'What is a URL?', o: ['Uniform Resource Locator', 'Universal Resource Locator',
+                    'Uniform Resource Link', 'Universal Resource Link'
+                ], a: 0 },
+            { q: 'Which protocol is used for web communication?', o: ['HTTP', 'FTP', 'SMTP', 'DNS'],
+                a: 0 },
+            { q: 'What is a cookie?', o: ['Small data stored by browser', 'Sweet treat', 'Programming language',
+                    'Database'
+                ], a: 0 },
+            { q: 'Which of these is a frontend framework?', o: ['Bootstrap', 'Django', 'Rails', 'Laravel'],
+                a: 0 },
+            { q: 'What is a web browser?', o: ['Application to view web pages', 'Web server',
+                    'Database system', 'Programming language'
+                ], a: 0 },
+            { q: 'Which of these is a backend language?', o: ['Python', 'HTML', 'CSS', 'JavaScript'],
+                a: 0 },
+            { q: 'What is REST API?', o: ['Representational State Transfer API', 'Remote State Transfer API',
+                    'Representational State Transmission API', 'Remote State Transmission API'
+                ], a: 0 },
+            { q: 'Which of these is a JavaScript runtime?', o: ['Node.js', 'Python', 'Java', 'C#'], a: 0 },
+            { q: 'What is a web application?', o: ['Application accessed via web browser', 'Mobile app',
+                    'Desktop app', 'Console app'
+                ], a: 0 },
+            { q: 'Which of these is a CSS preprocessor?', o: ['Sass', 'LESS', 'Stylus', 'All of the above'],
+                a: 3 },
+            { q: 'What is a responsive design?', o: ['Design that adapts to screen size', 'Fixed design',
+                    'Mobile-first design', 'Desktop-only design'
+                ], a: 0 },
+            { q: 'Which of these is a frontend library?', o: ['jQuery', 'Django', 'Rails', 'Laravel'],
+                a: 0 },
+            { q: 'What is an AJAX request?', o: ['Asynchronous JavaScript and XML', 'Async JavaScript and XHR',
+                    'Advanced JavaScript and XML', 'Asynchronous JSON and XHR'
+                ], a: 0 },
+            { q: 'Which of these is a web development tool?', o: ['Chrome DevTools', 'Git', 'VS Code',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web framework?', o: ['Framework for building web apps', 'Programming language',
+                    'Database system', 'Web server'
+                ], a: 0 },
+            { q: 'Which of these is a full-stack framework?', o: ['Django', 'React', 'Angular', 'Vue'],
+                a: 0 },
+            { q: 'What is a package in JavaScript?', o: ['Reusable code module', 'Variable', 'Function',
+                    'Data structure'
+                ], a: 0 },
+            { q: 'Which of these is a static site generator?', o: ['Jekyll', 'WordPress', 'Django',
+                    'Rails'
+                ], a: 0 },
+            { q: 'What is a web API?', o: ['API for web services', 'Programming language', 'Database',
+                    'Web server'
+                ], a: 0 },
+            { q: 'Which of these is a web standard?', o: ['W3C', 'ISO', 'IEEE', 'IETF'], a: 0 },
+            { q: 'What is a frontend developer?', o: ['Builds user interfaces', 'Builds server logic',
+                    'Manages databases', 'Manages networks'
+                ], a: 0 },
+            { q: 'Which of these is a backend framework?', o: ['Laravel', 'React', 'Vue', 'Angular'],
+                a: 0 },
+            { q: 'What is a session in web development?', o: ['User-specific data stored on server',
+                    'Cookie', 'Local storage', 'Database'
+                ], a: 0 },
+            { q: 'Which of these is a web security measure?', o: ['CORS', 'CORB', 'CSP', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web component?', o: ['Reusable UI element', 'Web page', 'Web server',
+                    'Web framework'
+                ], a: 0 },
+            { q: 'Which of these is a web performance metric?', o: ['LCP', 'FID', 'CLS', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web worker?', o: ['JavaScript running in background', 'Web server',
+                    'Web framework', 'Web browser'
+                ], a: 0 },
+            { q: 'Which of these is a web animation tool?', o: ['GreenSock', 'CSS animations', 'Web Animations API',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web accessibility?', o: ['Making web accessible to all', 'Web performance',
+                    'Web security', 'Web design'
+                ], a: 0 },
+            { q: 'Which of these is a web font format?', o: ['WOFF', 'TTF', 'OTF', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web cache?', o: ['Stores web resources for faster access', 'Web server',
+                    'Web framework', 'Web browser'
+                ], a: 0 },
+            { q: 'Which of these is a web development methodology?', o: ['Agile', 'Waterfall', 'Scrum',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web hook?', o: ['User-defined HTTP callback', 'Web server', 'Web framework',
+                    'Web browser'
+                ], a: 0 },
+            { q: 'Which of these is a web authentication method?', o: ['OAuth', 'Basic Auth', 'JWT',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web socket?', o: ['Bidirectional communication protocol', 'Web server',
+                    'Web framework', 'Web browser'
+                ], a: 0 },
+            { q: 'Which of these is a web design tool?', o: ['Figma', 'Sketch', 'Adobe XD', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web content management system?', o: ['WordPress', 'Drupal', 'Joomla',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'Which of these is a web development language?', o: ['JavaScript', 'Python', 'Ruby',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web server?', o: ['Serves web pages to clients', 'Web browser', 'Web framework',
+                    'Web application'
+                ], a: 0 },
+            { q: 'Which of these is a web hosting type?', o: ['Shared hosting', 'VPS', 'Dedicated server',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web domain?', o: ['Name that identifies a website', 'IP address', 'Web server',
+                    'Web browser'
+                ], a: 0 },
+            { q: 'Which of these is a web security threat?', o: ['XSS', 'CSRF', 'SQL injection',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web application firewall?', o: ['Protects web apps from attacks', 'Web server',
+                    'Web framework', 'Web browser'
+                ], a: 0 },
+            { q: 'Which of these is a web framework for Python?', o: ['Django', 'Flask', 'FastAPI',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web service?', o: ['Service accessible via web', 'Web server', 'Web framework',
+                    'Web browser'
+                ], a: 0 },
+        ];
+        webQ.forEach(q => addQ(q));
+
+        // 6) Databases (250–299)
+        const dbQ = [
+            { q: 'What does SQL stand for?', o: ['Structured Query Language', 'Standard Query Language',
+                    'System Query Language', 'Simple Query Language'
+                ], a: 0 },
+            { q: 'Which of these is a database management system?', o: ['MySQL', 'PostgreSQL', 'MongoDB',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a primary key?', o: ['Unique identifier for a record', 'Foreign key', 'Index',
+                    'Table'
+                ], a: 0 },
+            { q: 'Which of these is a NoSQL database?', o: ['MongoDB', 'PostgreSQL', 'MySQL', 'Oracle'],
+                a: 0 },
+            { q: 'What is a foreign key?', o: ['References a primary key', 'Unique identifier', 'Index',
+                    'Table'
+                ], a: 0 },
+            { q: 'Which SQL command is used to retrieve data?', o: ['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
+                a: 0 },
+            { q: 'What is a database index?', o: ['Speeds up queries', 'Stores data', 'Manages data',
+                    'Backup data'
+                ], a: 0 },
+            { q: 'Which of these is a relational database?', o: ['MySQL', 'MongoDB', 'Redis', 'Cassandra'],
+                a: 0 },
+            { q: 'What is a transaction in databases?', o: ['Unit of work', 'Query', 'Table', 'Index'],
+                a: 0 },
+            { q: 'Which SQL command is used to create a table?', o: ['CREATE TABLE', 'INSERT TABLE',
+                    'UPDATE TABLE', 'DELETE TABLE'
+                ], a: 0 },
+            { q: 'What is a database schema?', o: ['Structure of the database', 'Data in database',
+                    'Index in database', 'Backup of database'
+                ], a: 0 },
+            { q: 'Which of these is a type of join?', o: ['INNER JOIN', 'OUTER JOIN', 'LEFT JOIN',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is ACID in databases?', o: ['Atomicity, Consistency, Isolation, Durability',
+                    'Atomicity, Consistency, Integrity, Durability',
+                    'Atomicity, Concurrency, Isolation, Durability',
+                    'Atomicity, Consistency, Isolation, Data'
+                ], a: 0 },
+            { q: 'Which SQL command is used to modify data?', o: ['UPDATE', 'SELECT', 'INSERT', 'DELETE'],
+                a: 0 },
+            { q: 'What is a database backup?', o: ['Copy of database data', 'Database index', 'Database schema',
+                    'Database query'
+                ], a: 0 },
+            { q: 'Which of these is a cloud database service?', o: ['Amazon RDS', 'Azure SQL', 'Google Cloud SQL',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a stored procedure?', o: ['Precompiled SQL code', 'Query', 'Table', 'Index'],
+                a: 0 },
+            { q: 'Which of these is a database constraint?', o: ['NOT NULL', 'UNIQUE', 'CHECK',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is normalization?', o: ['Organizing data to reduce redundancy', 'Backup data',
+                    'Index data', 'Query data'
+                ], a: 0 },
+            { q: 'Which of these is a database query language?', o: ['SQL', 'NoSQL', 'GraphQL', 'All of the above'],
+                a: 3 },
+            { q: 'What is a database view?', o: ['Virtual table from a query', 'Real table', 'Index',
+                    'Constraint'
+                ], a: 0 },
+            { q: 'Which of these is a database performance metric?', o: ['Query response time', 'Throughput',
+                    'Connection count', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a database trigger?', o: ['Automatically executes on events', 'Query', 'Table',
+                    'Index'
+                ], a: 0 },
+            { q: 'Which of these is a database replication?', o: ['Copying data to multiple servers', 'Backup data',
+                    'Index data', 'Query data'
+                ], a: 0 },
+            { q: 'What is a database shard?', o: ['Horizontal partition of data', 'Vertical partition',
+                    'Index', 'Backup'
+                ], a: 0 },
+            { q: 'Which of these is a database security measure?', o: ['Encryption', 'Access control',
+                    'Audit logs', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a database connection pool?', o: ['Reuses database connections', 'Query pool',
+                    'Table pool', 'Index pool'
+                ], a: 0 },
+            { q: 'Which of these is a database design tool?', o: ['ER diagram', 'UML', 'Flowchart',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a database migration?', o: ['Changing database schema', 'Backup data',
+                    'Index data', 'Query data'
+                ], a: 0 },
+            { q: 'Which of these is a database type?', o: ['Relational', 'Document', 'Key-value',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a database cursor?', o: ['Iterates over result set', 'Query', 'Table', 'Index'],
+                a: 0 },
+            { q: 'Which of these is a database function?', o: ['Aggregate function', 'Scalar function',
+                    'Window function', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a database transaction log?', o: ['Records all transactions', 'Backup data',
+                    'Index data', 'Query data'
+                ], a: 0 },
+            { q: 'Which of these is a database administration task?', o: ['Backup and recovery', 'Performance tuning',
+                    'Security management', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a database cluster?', o: ['Group of servers hosting database', 'Index',
+                    'Backup', 'Query'
+                ], a: 0 },
+            { q: 'Which of these is a database monitoring tool?', o: ['Prometheus', 'Grafana', 'Datadog',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a database deadlock?', o: ['Two transactions waiting for each other', 'Query error',
+                    'Table lock', 'Index lock'
+                ], a: 0 },
+            { q: 'Which of these is a database isolation level?', o: ['Read Uncommitted', 'Read Committed',
+                    'Repeatable Read', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a database performance optimizer?', o: ['Improves query performance', 'Backup data',
+                    'Index data', 'Query data'
+                ], a: 0 },
+            { q: 'Which of these is a database backup type?', o: ['Full backup', 'Incremental backup',
+                    'Differential backup', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a database data warehouse?', o: ['Centralized data repository', 'Index', 'Backup',
+                    'Query'
+                ], a: 0 },
+            { q: 'Which of these is a database ETL process?', o: ['Extract, Transform, Load', 'Export, Transform, Load',
+                    'Extract, Transfer, Load', 'Extract, Transform, Link'
+                ], a: 0 },
+            { q: 'What is a database data lake?', o: ['Raw data repository', 'Index', 'Backup', 'Query'],
+                a: 0 },
+            { q: 'Which of these is a database analytics tool?', o: ['Tableau', 'Power BI', 'Looker',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a database replication lag?', o: ['Delay in data replication', 'Query delay',
+                    'Index delay', 'Backup delay'
+                ], a: 0 },
+            { q: 'Which of these is a database failover?', o: ['Automatic switch to backup server',
+                    'Query switch', 'Index switch', 'Backup switch'
+                ], a: 0 },
+            { q: 'What is a database read replica?', o: ['Read-only copy of database', 'Index', 'Backup',
+                    'Query'
+                ], a: 0 },
+            { q: 'Which of these is a database backup strategy?', o: ['Regular backups', 'Offsite backups',
+                    'Automated backups', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a database disaster recovery?', o: ['Restoring data after failure', 'Index',
+                    'Backup', 'Query'
+                ], a: 0 },
+            { q: 'Which of these is a database management tool?', o: ['phpMyAdmin', 'pgAdmin', 'MongoDB Compass',
+                    'All of the above'
+                ], a: 3 },
+        ];
+        dbQ.forEach(q => addQ(q));
+
+        // 7) Security (300–349)
+        const secQ = [
+            { q: 'What is cybersecurity?', o: ['Protecting systems from threats', 'Programming',
+                    'Database management', 'Network administration'
+                ], a: 0 },
+            { q: 'Which of these is a common security threat?', o: ['Malware', 'Software bug', 'Hardware failure',
+                    'Network latency'
+                ], a: 0 },
+            { q: 'What is a firewall?', o: ['Network security system', 'Antivirus', 'Encryption tool',
+                    'Authentication tool'
+                ], a: 0 },
+            { q: 'Which of these is a type of malware?', o: ['Virus', 'Worm', 'Trojan', 'All of the above'],
+                a: 3 },
+            { q: 'What is encryption?', o: ['Converting data to secure format', 'Deleting data',
+                    'Copying data', 'Sharing data'
+                ], a: 0 },
+            { q: 'Which of these is a strong password?', o: ['P@ssw0rd123!', '123456', 'password', 'qwerty'],
+                a: 0 },
+            { q: 'What is social engineering?', o: ['Manipulating people for information', 'Programming',
+                    'Network design', 'Database management'
+                ], a: 0 },
+            { q: 'Which of these is a security best practice?', o: ['Regular updates', 'Weak passwords',
+                    'Sharing passwords', 'Ignoring alerts'
+                ], a: 0 },
+            { q: 'What is a VPN used for?', o: ['Secure communication', 'File storage', 'Web browsing',
+                    'Email sending'
+                ], a: 0 },
+            { q: 'Which of these is a common attack type?', o: ['Phishing', 'DDoS', 'Man-in-the-middle',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is an SSL certificate?', o: ['Encrypts web traffic', 'Stores passwords',
+                    'Manages users', 'Logs activities'
+                ], a: 0 },
+            { q: 'Which of these is a security framework?', o: ['NIST', 'ISO 27001', 'PCI DSS',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is two-factor authentication?', o: ['Two-step verification', 'Single password',
+                    'Biometric only', 'Email only'
+                ], a: 0 },
+            { q: 'Which of these is a security protocol?', o: ['SSL/TLS', 'HTTP', 'FTP', 'SMTP'], a: 0 },
+            { q: 'What is a zero-day vulnerability?', o: ['Unknown security flaw', 'Known bug', 'Fixed issue',
+                    'Patched vulnerability'
+                ], a: 0 },
+            { q: 'Which of these is a security tool?', o: ['Wireshark', 'Nmap', 'Metasploit',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is an intrusion detection system?', o: ['Monitors for malicious activity', 'Prevents attacks',
+                    'Encrypts data', 'Manages users'
+                ], a: 0 },
+            { q: 'Which of these is a security compliance standard?', o: ['GDPR', 'HIPAA', 'PCI DSS',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security audit?', o: ['Assesses security posture', 'Installs software',
+                    'Configures network', 'Manages users'
+                ], a: 0 },
+            { q: 'Which of these is a type of cyber attack?', o: ['Ransomware', 'Spyware', 'Adware',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security patch?', o: ['Fixes security vulnerabilities', 'Adds features',
+                    'Updates design', 'Changes settings'
+                ], a: 0 },
+            { q: 'Which of these is a security policy?', o: ['Password policy', 'Access control policy',
+                    'Data protection policy', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a security incident?', o: ['Security breach', 'System upgrade', 'Software update',
+                    'Hardware maintenance'
+                ], a: 0 },
+            { q: 'Which of these is a security control?', o: ['Access control', 'Encryption', 'Audit logs',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security risk assessment?', o: ['Identifies potential threats', 'Installs software',
+                    'Configures network', 'Manages users'
+                ], a: 0 },
+            { q: 'Which of these is a security threat vector?', o: ['Email', 'USB drive', 'Network',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security vulnerability?', o: ['Weakness in system', 'Strong password',
+                    'Encryption key', 'Firewall rule'
+                ], a: 0 },
+            { q: 'Which of these is a security measure for passwords?', o: ['Hashing', 'Encryption', 'Salting',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security token?', o: ['Device or code for authentication', 'Password',
+                    'Encryption key', 'Firewall rule'
+                ], a: 0 },
+            { q: 'Which of these is a security protocol?', o: ['IPsec', 'SSL', 'TLS', 'All of the above'],
+                a: 3 },
+            { q: 'What is a security operations center (SOC)?', o: ['Monitors security events', 'Installs software',
+                    'Configures network', 'Manages users'
+                ], a: 0 },
+            { q: 'Which of these is a security threat intelligence?', o: ['Information about threats',
+                    'Password policy', 'Encryption key', 'Firewall rule'
+                ], a: 0 },
+            { q: 'What is a security breach?', o: ['Unauthorized access', 'System upgrade',
+                    'Software update', 'Hardware maintenance'
+                ], a: 0 },
+            { q: 'Which of these is a security standard?', o: ['ISO 27001', 'NIST', 'PCI DSS',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security awareness training?', o: ['Educates about security', 'Installs software',
+                    'Configures network', 'Manages users'
+                ], a: 0 },
+            { q: 'Which of these is a security best practice for data?', o: ['Regular backups', 'Encryption',
+                    'Access control', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a security policy?', o: ['Defines security rules', 'Password', 'Encryption key',
+                    'Firewall rule'
+                ], a: 0 },
+            { q: 'Which of these is a security risk?', o: ['Data breach', 'System upgrade', 'Software update',
+                    'Hardware maintenance'
+                ], a: 0 },
+            { q: 'What is a security framework?', o: ['Guide for security implementation', 'Password',
+                    'Encryption key', 'Firewall rule'
+                ], a: 0 },
+            { q: 'Which of these is a security tool for monitoring?', o: ['SIEM', 'Wireshark', 'Nmap',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security incident response?', o: ['Dealing with security events', 'Installs software',
+                    'Configures network', 'Manages users'
+                ], a: 0 },
+            { q: 'Which of these is a security threat?', o: ['Insider threat', 'External threat', 'Advanced persistent threat',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a security mitigation strategy?', o: ['Reduces risk', 'Increases risk',
+                    'Ignores risk', 'Transfers risk'
+                ], a: 0 },
+            { q: 'Which of these is a security encryption standard?', o: ['AES', 'RSA', 'ECC', 'All of the above'],
+                a: 3 },
+            { q: 'What is a security key management?', o: ['Manages cryptographic keys', 'Password policy',
+                    'Encryption key', 'Firewall rule'
+                ], a: 0 },
+            { q: 'Which of these is a security compliance?', o: ['GDPR', 'HIPAA', 'PCI DSS', 'All of the above'],
+                a: 3 },
+            { q: 'What is a security vulnerability scan?', o: ['Identifies weaknesses', 'Installs software',
+                    'Configures network', 'Manages users'
+                ], a: 0 },
+            { q: 'Which of these is a security best practice for networks?', o: ['Firewall configuration',
+                    'Intrusion detection', 'Encryption', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a security patch management?', o: ['Manages security updates', 'Password policy',
+                    'Encryption key', 'Firewall rule'
+                ], a: 0 },
+            { q: 'Which of these is a security threat detection method?', o: ['Anomaly detection',
+                    'Signature-based detection', 'Behavioral analysis', 'All of the above'
+                ], a: 3 },
+        ];
+        secQ.forEach(q => addQ(q));
+
+        // 8) Internet (350–399)
+        const internetQ = [
+            { q: 'What is the Internet?', o: ['Global network of computers', 'Local network',
+                    'Private network', 'Database network'
+                ], a: 0 },
+            { q: 'What is a web browser?', o: ['Tool to access the web', 'Web server', 'Database',
+                    'Programming language'
+                ], a: 0 },
+            { q: 'What is a search engine?', o: ['Searches the web', 'Email service', 'Social media',
+                    'File storage'
+                ], a: 0 },
+            { q: 'Which of these is a search engine?', o: ['Google', 'Yahoo', 'Bing', 'All of the above'],
+                a: 3 },
+            { q: 'What is a domain name?', o: ['Website address', 'IP address', 'Web server', 'Email address'],
+                a: 0 },
+            { q: 'What is a URL?', o: ['Web address', 'IP address', 'Domain name', 'Email address'],
+                a: 0 },
+            { q: 'What is an ISP?', o: ['Internet Service Provider', 'Integrated Service Provider',
+                    'International Service Provider', 'Internal Service Provider'
+                ], a: 0 },
+            { q: 'What is broadband?', o: ['High-speed internet', 'Low-speed internet', 'Wireless internet',
+                    'Satellite internet'
+                ], a: 0 },
+            { q: 'Which of these is a social media platform?', o: ['Facebook', 'Twitter', 'Instagram',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is email?', o: ['Electronic mail', 'Encrypted mail', 'Email server', 'Email client'],
+                a: 0 },
+            { q: 'What is cloud computing?', o: ['Internet-based computing', 'Local computing',
+                    'Desktop computing', 'Mobile computing'
+                ], a: 0 },
+            { q: 'Which of these is a cloud service provider?', o: ['AWS', 'Azure', 'Google Cloud',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web host?', o: ['Stores website files', 'Web browser', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'What is a content delivery network (CDN)?', o: ['Distributes web content', 'Stores data',
+                    'Manages users', 'Processes payments'
+                ], a: 0 },
+            { q: 'Which of these is a web protocol?', o: ['HTTP', 'FTP', 'SMTP', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web cookie?', o: ['Data stored by websites', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'What is a web cache?', o: ['Stores web resources', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web technology?', o: ['HTML', 'CSS', 'JavaScript', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web application?', o: ['Application on the web', 'Desktop app', 'Mobile app',
+                    'Console app'
+                ], a: 0 },
+            { q: 'What is a web service?', o: ['Service on the web', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web standard?', o: ['HTML5', 'CSS3', 'ES6', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web framework?', o: ['Framework for web apps', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web development tool?', o: ['VS Code', 'Git', 'Chrome DevTools',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web API?', o: ['API for web services', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web security measure?', o: ['SSL', 'CORS', 'CSP', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web analytics?', o: ['Analyzes web usage', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web marketing tool?', o: ['Google Analytics', 'SEO', 'SEM',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web community?', o: ['Online group', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web forum?', o: ['Reddit', 'Stack Overflow', 'Quora', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web blog?', o: ['Online journal', 'Web server', 'Email service', 'Search engine'],
+                a: 0 },
+            { q: 'Which of these is a web e-commerce platform?', o: ['Shopify', 'Magento', 'WooCommerce',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web payment gateway?', o: ['Processes online payments', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web security protocol?', o: ['HTTPS', 'SSL/TLS', 'SSH', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web proxy?', o: ['Intermediary for web requests', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web caching tool?', o: ['Varnish', 'Redis', 'Memcached', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web load balancer?', o: ['Distributes web traffic', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web performance optimization?', o: ['Minification', 'Compression',
+                    'Caching', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a web accessibility standard?', o: ['WCAG', 'HTML5', 'CSS3', 'JavaScript'],
+                a: 0 },
+            { q: 'Which of these is a web design principle?', o: ['Responsive design', 'Mobile-first',
+                    'User-centered', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a web prototype?', o: ['Draft version of a web app', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web user experience (UX) factor?', o: ['Usability', 'Design', 'Performance',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web user interface (UI)?', o: ['Visual elements of a web app', 'Web server',
+                    'Email service', 'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web testing tool?', o: ['Selenium', 'Cypress', 'Jest', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web deployment?', o: ['Releasing web app to production', 'Web server',
+                    'Email service', 'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web hosting service?', o: ['AWS', 'Netlify', 'Vercel', 'All of the above'],
+                a: 3 },
+            { q: 'What is a web SSL/TLS certificate?', o: ['Encrypts web traffic', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web development methodology?', o: ['Agile', 'Waterfall', 'Scrum',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a web version control?', o: ['Manages code changes', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+            { q: 'Which of these is a web continuous integration tool?', o: ['Jenkins', 'GitHub Actions',
+                    'Travis CI', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a web monitoring tool?', o: ['Monitors web app performance', 'Web server', 'Email service',
+                    'Search engine'
+                ], a: 0 },
+        ];
+        internetQ.forEach(q => addQ(q));
+
+        // 9) Software Engineering (400–449)
+        const seQ = [
+            { q: 'What is software engineering?', o: ['Engineering of software', 'Programming', 'Database management',
+                    'Network administration'
+                ], a: 0 },
+            { q: 'Which of these is a software development model?', o: ['Waterfall', 'Agile', 'Spiral',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a requirement?', o: ['Needs of the system', 'Code', 'Design', 'Test'],
+                a: 0 },
+            { q: 'Which of these is a software design principle?', o: ['DRY', 'KISS', 'SOLID', 'All of the above'],
+                a: 3 },
+            { q: 'What is a software architecture?', o: ['High-level structure of a system', 'Code',
+                    'Design', 'Test'
+                ], a: 0 },
+            { q: 'Which of these is a software design pattern?', o: ['Singleton', 'Factory', 'Observer',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a software development life cycle (SDLC)?', o: ['Process of software development',
+                    'Code', 'Design', 'Test'
+                ], a: 0 },
+            { q: 'Which of these is a SDLC phase?', o: ['Planning', 'Design', 'Testing', 'All of the above'],
+                a: 3 },
+            { q: 'What is software testing?', o: ['Validating software quality', 'Coding', 'Designing',
+                    'Deploying'
+                ], a: 0 },
+            { q: 'Which of these is a type of software testing?', o: ['Unit testing', 'Integration testing',
+                    'System testing', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a bug in software?', o: ['Error in software', 'Feature', 'Design', 'Requirement'],
+                a: 0 },
+            { q: 'Which of these is a software version control system?', o: ['Git', 'SVN', 'Mercurial',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is software documentation?', o: ['Describes software', 'Code', 'Design', 'Test'],
+                a: 0 },
+            { q: 'Which of these is a software project management tool?', o: ['Jira', 'Trello', 'Asana',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a software requirement specification (SRS)?', o: ['Document of requirements',
+                    'Code', 'Design', 'Test'
+                ], a: 0 },
+            { q: 'Which of these is a software testing framework?', o: ['JUnit', 'PyTest', 'Mocha',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a software maintenance?', o: ['Updating software', 'Coding', 'Designing',
+                    'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software refactoring?', o: ['Improving code structure', 'Adding features',
+                    'Fixing bugs', 'Testing'
+                ], a: 0 },
+            { q: 'What is a software deployment?', o: ['Releasing software', 'Coding', 'Designing',
+                    'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software quality attribute?', o: ['Reliability', 'Usability', 'Performance',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a software performance testing?', o: ['Tests speed and responsiveness', 'Coding',
+                    'Designing', 'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software security testing?', o: ['Tests for vulnerabilities', 'Coding',
+                    'Designing', 'Testing'
+                ], a: 0 },
+            { q: 'What is a software usability testing?', o: ['Tests user experience', 'Coding', 'Designing',
+                    'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software development tool?', o: ['IDE', 'Version control', 'Debugger',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a software build tool?', o: ['Automates build process', 'Coding', 'Designing',
+                    'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software CI/CD tool?', o: ['Jenkins', 'GitHub Actions', 'GitLab CI',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a software container?', o: ['Packaged software with dependencies', 'Code',
+                    'Design', 'Test'
+                ], a: 0 },
+            { q: 'Which of these is a software orchestration tool?', o: ['Kubernetes', 'Docker Swarm',
+                    'Mesos', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a software microservice?', o: ['Small independent service', 'Monolith',
+                    'Design pattern', 'Test'
+                ], a: 0 },
+            { q: 'Which of these is a software API?', o: ['Application Programming Interface', 'Code',
+                    'Design', 'Test'
+                ], a: 0 },
+            { q: 'What is a software library?', o: ['Collection of reusable code', 'Design pattern',
+                    'Test', 'Requirement'
+                ], a: 0 },
+            { q: 'Which of these is a software framework?', o: ['Reusable code base', 'Design pattern',
+                    'Test', 'Requirement'
+                ], a: 0 },
+            { q: 'What is a software code review?', o: ['Reviewing code for quality', 'Coding', 'Designing',
+                    'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software pair programming?', o: ['Two programmers working together',
+                    'Coding alone', 'Designing', 'Testing'
+                ], a: 0 },
+            { q: 'What is a software agile methodology?', o: ['Iterative development', 'Waterfall',
+                    'Spiral', 'V-model'
+                ], a: 0 },
+            { q: 'Which of these is a software Scrum role?', o: ['Scrum Master', 'Product Owner',
+                    'Development Team', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a software sprint?', o: ['Time-boxed development cycle', 'Release', 'Design',
+                    'Test'
+                ], a: 0 },
+            { q: 'Which of these is a software backlog?', o: ['List of pending work', 'Code', 'Design',
+                    'Test'
+                ], a: 0 },
+            { q: 'What is a software user story?', o: ['Requirement in agile', 'Code', 'Design', 'Test'],
+                a: 0 },
+            { q: 'Which of these is a software acceptance criteria?', o: ['Conditions for satisfaction',
+                    'Code', 'Design', 'Test'
+                ], a: 0 },
+            { q: 'What is a software technical debt?', o: ['Cost of poor code quality', 'Code', 'Design',
+                    'Test'
+                ], a: 0 },
+            { q: 'Which of these is a software code quality metric?', o: ['Cyclomatic complexity',
+                    'Code coverage', 'Technical debt', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a software continuous integration?', o: ['Frequent merging of code', 'Coding',
+                    'Designing', 'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software continuous delivery?', o: ['Automated releases', 'Coding',
+                    'Designing', 'Testing'
+                ], a: 0 },
+            { q: 'What is a software DevOps?', o: ['Development and Operations collaboration', 'Coding',
+                    'Designing', 'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software monitoring tool?', o: ['Prometheus', 'Grafana', 'Datadog',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a software logging tool?', o: ['Records application events', 'Coding', 'Designing',
+                    'Testing'
+                ], a: 0 },
+            { q: 'Which of these is a software analytics tool?', o: ['Google Analytics', 'Mixpanel',
+                    'Amplitude', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a software feature flag?', o: ['Toggle for features', 'Code', 'Design', 'Test'],
+                a: 0 },
+            { q: 'Which of these is a software A/B testing?', o: ['Testing two versions', 'Coding',
+                    'Designing', 'Testing'
+                ], a: 0 },
+        ];
+        seQ.forEach(q => addQ(q));
+
+        // 10) Digital Logic & Basics (450–499)
+        const digitalQ = [
+            { q: 'What is a bit?', o: ['Binary digit', 'Byte', 'Nibble', 'Word'], a: 0 },
+            { q: 'What is a byte?', o: ['8 bits', '4 bits', '16 bits', '32 bits'], a: 0 },
+            { q: 'Which number system uses base 2?', o: ['Binary', 'Decimal', 'Hexadecimal', 'Octal'],
+                a: 0 },
+            { q: 'What is a nibble?', o: ['4 bits', '8 bits', '16 bits', '32 bits'], a: 0 },
+            { q: 'Which of these is a logic gate?', o: ['AND', 'OR', 'NOT', 'All of the above'], a: 3 },
+            { q: 'What is a truth table?', o: ['Shows logic gate outputs', 'Database table',
+                    'Network table', 'File table'
+                ], a: 0 },
+            { q: 'Which of these is a boolean operator?', o: ['AND', 'OR', 'NOT', 'All of the above'],
+                a: 3 },
+            { q: 'What is a half-adder?', o: ['Adds two bits', 'Adds three bits', 'Subtracts bits',
+                    'Multiplies bits'
+                ], a: 0 },
+            { q: 'Which of these is a number system?', o: ['Binary', 'Decimal', 'Hexadecimal',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a binary number?', o: ['Number in base 2', 'Number in base 10',
+                    'Number in base 16', 'Number in base 8'
+                ], a: 0 },
+            { q: 'Which of these is a hexadecimal digit?', o: ['A', 'G', 'H', 'Z'], a: 0 },
+            { q: 'What is a bitwise operation?', o: ['Operation on bits', 'Operation on bytes',
+                    'Operation on numbers', 'Operation on strings'
+                ], a: 0 },
+            { q: 'Which of these is a bitwise operator?', o: ['&', '|', '^', 'All of the above'],
+                a: 3 },
+            { q: 'What is a shift operator?', o: ['Shifts bits', 'Adds bits', 'Subtracts bits',
+                    'Multiplies bits'
+                ], a: 0 },
+            { q: 'Which of these is a base 16 system?', o: ['Hexadecimal', 'Binary', 'Octal', 'Decimal'],
+                a: 0 },
+            { q: 'What is a base 8 system?', o: ['Octal', 'Binary', 'Hexadecimal', 'Decimal'], a: 0 },
+            { q: 'Which of these is a base 10 system?', o: ['Decimal', 'Binary', 'Hexadecimal', 'Octal'],
+                a: 0 },
+            { q: 'What is a complement in digital logic?', o: ['Inverted value', 'Added value',
+                    'Multiplied value', 'Subtracted value'
+                ], a: 0 },
+            { q: 'Which of these is a type of flip-flop?', o: ['SR', 'D', 'JK', 'All of the above'],
+                a: 3 },
+            { q: 'What is a register?', o: ['Small storage in CPU', 'Large storage', 'Network storage',
+                    'File storage'
+                ], a: 0 },
+            { q: 'Which of these is a memory unit?', o: ['Bit', 'Byte', 'Kilobyte', 'All of the above'],
+                a: 3 },
+            { q: 'What is a cache?', o: ['Fast memory', 'Slow memory', 'Network memory', 'File memory'],
+                a: 0 },
+            { q: 'Which of these is a computer architecture?', o: ['Von Neumann', 'Harvard', 'RISC',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a bus in a computer?', o: ['Data transfer path', 'Network cable', 'Memory',
+                    'Processor'
+                ], a: 0 },
+            { q: 'Which of these is a type of bus?', o: ['Data bus', 'Address bus', 'Control bus',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is an ISA?', o: ['Instruction Set Architecture', 'International Standard Architecture',
+                    'Internal System Architecture', 'Integrated System Architecture'
+                ], a: 0 },
+            { q: 'Which of these is a processor type?', o: ['CISC', 'RISC', 'Both', 'Neither'], a: 2 },
+            { q: 'What is pipeline in a processor?', o: ['Parallel execution stages', 'Serial execution',
+                    'Caching', 'Buffering'
+                ], a: 0 },
+            { q: 'Which of these is a memory hierarchy level?', o: ['Register', 'Cache', 'RAM',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is an interrupt?', o: ['Signal to processor', 'Instruction', 'Data', 'Address'],
+                a: 0 },
+            { q: 'Which of these is a I/O interface?', o: ['USB', 'HDMI', 'Ethernet', 'All of the above'],
+                a: 3 },
+            { q: 'What is a DMA?', o: ['Direct Memory Access', 'Direct Memory Allocation',
+                    'Direct Memory Addressing', 'Direct Memory Application'
+                ], a: 0 },
+            { q: 'Which of these is a storage medium?', o: ['Magnetic', 'Optical', 'Solid state',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is a RAID?', o: ['Redundant Array of Independent Disks', 'Redundant Array of Integrated Disks',
+                    'Redundant Array of Internal Disks', 'Redundant Array of Individual Disks'
+                ], a: 0 },
+            { q: 'Which of these is a RAID level?', o: ['RAID 0', 'RAID 1', 'RAID 5', 'All of the above'],
+                a: 3 },
+            { q: 'What is a GPU used for?', o: ['Graphics processing', 'General processing', 'Network processing',
+                    'Storage processing'
+                ], a: 0 },
+            { q: 'Which of these is a display type?', o: ['LCD', 'LED', 'OLED', 'All of the above'],
+                a: 3 },
+            { q: 'What is a resolution?', o: ['Number of pixels', 'Screen size', 'Color depth',
+                    'Refresh rate'
+                ], a: 0 },
+            { q: 'Which of these is a refresh rate unit?', o: ['Hz', 'FPS', 'ms', 'All of the above'],
+                a: 3 },
+            { q: 'What is a touchscreen?', o: ['Input and output device', 'Output device', 'Input device',
+                    'Storage device'
+                ], a: 0 },
+            { q: 'Which of these is a sensor type?', o: ['Gyroscope', 'Accelerometer', 'GPS', 'All of the above'],
+                a: 3 },
+            { q: 'What is a microcontroller?', o: ['Small computer on a chip', 'Processor', 'Memory',
+                    'Storage'
+                ], a: 0 },
+            { q: 'Which of these is a communication protocol?', o: ['I2C', 'SPI', 'UART', 'All of the above'],
+                a: 3 },
+            { q: 'What is an embedded system?', o: ['Computer system in a device', 'Desktop computer',
+                    'Server computer', 'Mobile computer'
+                ], a: 0 },
+            { q: 'Which of these is a robotics component?', o: ['Actuator', 'Sensor', 'Controller',
+                    'All of the above'
+                ], a: 3 },
+            { q: 'What is an AI?', o: ['Artificial Intelligence', 'Automated Intelligence',
+                    'Advanced Intelligence', 'Adaptive Intelligence'
+                ], a: 0 },
+            { q: 'Which of these is a machine learning type?', o: ['Supervised', 'Unsupervised',
+                    'Reinforcement', 'All of the above'
+                ], a: 3 },
+            { q: 'What is a neural network?', o: ['AI model', 'Database', 'Network protocol', 'File system'],
+                a: 0 },
+            { q: 'Which of these is a data science tool?', o: ['Python', 'R', 'Jupyter', 'All of the above'],
+                a: 3 },
+            { q: 'What is big data?', o: ['Large volumes of data', 'Small data', 'Medium data',
+                    'No data'
+                ], a: 0 },
+        ];
+        digitalQ.forEach(q => addQ(q));
+
+        // ── ensure we have exactly 500 questions ──
+        while (QUESTIONS.length < 500) {
+            addQ({
+                q: `What is the binary equivalent of decimal ${QUESTIONS.length + 10}?`,
+                o: ['1010', '1011', '1100', '1101'],
+                a: QUESTIONS.length % 4
+            });
+        }
+        // trim to exactly 500
+        if (QUESTIONS.length > 500) QUESTIONS.length = 500;
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  2.  APPLICATION STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const state = {
+            current: 0, // 0-based index
+            answers: new Array(QUESTIONS.length).fill(null), // null | option index
+            score: 0,
+            completed: false,
+        };
+
+        // DOM refs
+        const $ = id => document.getElementById(id);
+        const scoreDisplay = $('scoreDisplay');
+        const progressLabel = $('progressLabel');
+        const progressPercent = $('progressPercent');
+        const progressFill = $('progressFill');
+        const qNumber = $('qNumber');
+        const qText = $('qText');
+        const optionsContainer = $('optionsContainer');
+        const feedback = $('feedback');
+        const feedbackIcon = $('feedbackIcon');
+        const feedbackText = $('feedbackText');
+        const prevBtn = $('prevBtn');
+        const nextBtn = $('nextBtn');
+        const jumpInput = $('jumpInput');
+        const jumpBtn = $('jumpBtn');
+        const questionArea = $('questionArea');
+        const resultScreen = $('resultScreen');
+        const resultIcon = $('resultIcon');
+        const resultScore = $('resultScore');
+        const resultMsg = $('resultMsg');
+        const rCorrect = $('rCorrect');
+        const rWrong = $('rWrong');
+        const rSkipped = $('rSkipped');
+        const restartBtn = $('restartBtn');
+        const questionGrid = $('questionGrid');
+        const answeredCount = $('answeredCount');
+        const totalCount = $('totalCount');
+
+        const LETTERS = ['A', 'B', 'C', 'D'];
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  3A. QUESTION GRID RENDERER
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function renderQuestionGrid() {
+            questionGrid.innerHTML = '';
+            const answered = state.answers.filter(a => a !== null).length;
+            answeredCount.textContent = answered;
+            totalCount.textContent = QUESTIONS.length;
+
+            for (let i = 0; i < QUESTIONS.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.textContent = (i + 1);
+                btn.title = `Question ${i + 1}`;
+
+                // Check if current question
+                if (i === state.current) {
+                    btn.classList.add('current');
+                }
+
+                // Check if answered
+                if (state.answers[i] !== null) {
+                    btn.classList.add('answered');
+                    btn.disabled = true;
+                }
+
+                // Check if expired (answered before and now current is different)
+                if (state.answers[i] !== null && i !== state.current) {
+                    btn.classList.add('expired');
+                }
+
+                btn.addEventListener('click', () => {
+                    if (state.answers[i] === null) {
+                        // not answered, can go to it
+                        goTo(i);
+                        // smooth scroll the grid to show current question
+                        setTimeout(() => {
+                            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }, 50);
+                    } else {
+                        // already answered, cannot select
+                        // could optionally allow viewing the answer
+                    }
+                });
+
+                questionGrid.appendChild(btn);
+            }
+        }
+
+        function updateQuestionButtonState(index) {
+            const allBtns = questionGrid.querySelectorAll('.question-btn');
+            allBtns.forEach((btn, i) => {
+                btn.classList.remove('current', 'answered', 'expired');
+
+                if (i === state.current) {
+                    btn.classList.add('current');
+                } else if (state.answers[i] !== null) {
+                    btn.classList.add('answered', 'expired');
+                    btn.disabled = true;
+                }
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  3.  RENDER FUNCTIONS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function renderQuestion() {
+            const q = QUESTIONS[state.current];
+            const idx = state.current;
+            const selected = state.answers[idx];
+
+            // header
+            qNumber.textContent = `Q${idx + 1} of ${QUESTIONS.length}`;
+            qText.textContent = q.q;
+
+            // options
+            optionsContainer.innerHTML = '';
+            q.o.forEach((text, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                if (selected !== null) btn.classList.add('disabled');
+
+                const letterSpan = document.createElement('span');
+                letterSpan.className = 'letter';
+                letterSpan.textContent = LETTERS[i];
+                btn.appendChild(letterSpan);
+
+                const textSpan = document.createElement('span');
+                textSpan.textContent = text;
+                btn.appendChild(textSpan);
+
+                // highlight selected
+                if (selected === i) {
+                    btn.classList.add('selected');
+                    if (selected === q.a) {
+                        btn.classList.add('correct');
+                    } else {
+                        btn.classList.add('wrong');
+                    }
+                }
+
+                // if answered, show correct answer
+                if (selected !== null && i === q.a) {
+                    btn.classList.add('correct');
+                }
+
+                btn.addEventListener('click', () => {
+                    if (state.answers[idx] !== null) return;
+                    selectOption(idx, i);
+                });
+
+                optionsContainer.appendChild(btn);
+            });
+
+            // feedback
+            if (selected !== null) {
+                const correct = selected === q.a;
+                feedback.className = 'feedback show ' + (correct ? 'correct' : 'wrong');
+                feedbackIcon.textContent = correct ? '✅' : '❌';
+                feedbackText.textContent = correct ?
+                    'Correct! 🎉' :
+                    `Wrong. The correct answer is: ${LETTERS[q.a]} — ${q.o[q.a]}`;
+            } else {
+                feedback.className = 'feedback';
+            }
+
+            // update nav
+            prevBtn.disabled = idx === 0;
+            nextBtn.textContent = idx === QUESTIONS.length - 1 ? 'Finish 🏁' : 'Next ›';
+            jumpInput.value = idx + 1;
+
+            // update progress
+            const total = QUESTIONS.length;
+            const answered = state.answers.filter(a => a !== null).length;
+            const pct = Math.round(((idx + 1) / total) * 100);
+            progressLabel.textContent = `Question ${idx + 1} of ${total}  •  ${answered}/${total} answered`;
+            progressPercent.textContent = `${pct}%`;
+            progressFill.style.width = `${pct}%`;
+
+            // score
+            updateScore();
+
+            // update question grid
+            updateQuestionButtonState(state.current);
+
+            // scroll to top of question on mobile
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function selectOption(qIdx, optIdx) {
+            if (state.answers[qIdx] !== null) return;
+            state.answers[qIdx] = optIdx;
+            if (optIdx === QUESTIONS[qIdx].a) state.score++;
+            renderQuestion();
+            // auto advance after short delay if not last
+            if (qIdx < QUESTIONS.length - 1) {
+                setTimeout(() => {
+                    if (state.answers[qIdx + 1] === null) {
+                        state.current = qIdx + 1;
+                        renderQuestion();
+                    }
+                }, 450);
+            } else {
+                // if last question, check if all answered
+                checkCompletion();
+            }
+        }
+
+        function updateScore() {
+            const answered = state.answers.filter(a => a !== null).length;
+            // score is already tracked incrementally; recalc to be safe
+            let correct = 0;
+            for (let i = 0; i < state.answers.length; i++) {
+                if (state.answers[i] !== null && state.answers[i] === QUESTIONS[i].a) correct++;
+            }
+            state.score = correct;
+            scoreDisplay.textContent = correct;
+        }
+
+        function checkCompletion() {
+            const allAnswered = state.answers.every(a => a !== null);
+            if (allAnswered && !state.completed) {
+                state.completed = true;
+                showResults();
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  4.  RESULTS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function showResults() {
+            questionArea.style.display = 'none';
+            resultScreen.classList.add('show');
+            document.getElementById('navControls').style.display = 'none';
+
+            const total = QUESTIONS.length;
+            const correct = state.score;
+            const wrong = state.answers.filter((a, i) => a !== null && a !== QUESTIONS[i].a).length;
+            const skipped = state.answers.filter(a => a === null).length;
+
+            const pct = Math.round((correct / total) * 100);
+            let icon, msg;
+            if (pct >= 90) { icon = '🏆';
+                msg = 'Outstanding! You\'re a tech genius!'; } else if (pct >= 70) { icon = '🌟';
+                msg = 'Great job! You have solid tech knowledge.'; } else if (pct >= 50) { icon = '💪';
+                msg = 'Good effort! Keep learning and improving.'; } else if (pct >= 30) { icon = '📚';
+                msg = 'Nice start! Review the topics you missed.'; } else { icon = '🤓';
+                msg = 'Don\'t give up! Every expert was once a beginner.'; }
+
+            resultIcon.textContent = icon;
+            resultScore.innerHTML = `${correct} <span>/ ${total}</span>`;
+            resultMsg.textContent = msg;
+            rCorrect.textContent = correct;
+            rWrong.textContent = wrong;
+            rSkipped.textContent = skipped;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  5.  NAVIGATION
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function goTo(index) {
+            if (index < 0 || index >= QUESTIONS.length) return;
+            if (state.completed) return;
+            state.current = index;
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (state.current > 0) goTo(state.current - 1);
+        }
+
+        function nextQuestion() {
+            if (state.completed) return;
+            // if last question and all answered, show results
+            if (state.current === QUESTIONS.length - 1) {
+                const allAnswered = state.answers.every(a => a !== null);
+                if (allAnswered) {
+                    state.completed = true;
+                    showResults();
+                    return;
+                } else {
+                    // mark current if not answered? No, just stay.
+                    // but we can warn
+                    const cur = state.answers[state.current];
+                    if (cur === null) {
+                        // highlight feedback to answer
+                        feedback.className = 'feedback show wrong';
+                        feedbackIcon.textContent = '⚠️';
+                        feedbackText.textContent = 'Please answer this question before finishing.';
+                        return;
+                    }
+                    // if answered but others not, move to next unanswered
+                    const nextUnanswered = state.answers.findIndex((a, i) => a === null && i > state.current);
+                    if (nextUnanswered !== -1) {
+                        goTo(nextUnanswered);
+                        return;
+                    }
+                    // all answered but somehow not completed
+                    state.completed = true;
+                    showResults();
+                    return;
+                }
+            }
+            // normal next
+            // if current unanswered, stay
+            if (state.answers[state.current] === null) {
+                feedback.className = 'feedback show wrong';
+                feedbackIcon.textContent = '⚠️';
+                feedbackText.textContent = 'Please select an answer before moving on.';
+                return;
+            }
+            // find next unanswered or just go next
+            const nextUnanswered = state.answers.findIndex((a, i) => a === null && i > state.current);
+            if (nextUnanswered !== -1) {
+                goTo(nextUnanswered);
+            } else {
+                // go to next sequential
+                const next = state.current + 1;
+                if (next < QUESTIONS.length) goTo(next);
+                else {
+                    // check if all answered
+                    if (state.answers.every(a => a !== null)) {
+                        state.completed = true;
+                        showResults();
+                    }
+                }
+            }
+        }
+
+        function jumpTo() {
+            const val = parseInt(jumpInput.value);
+            if (isNaN(val) || val < 1 || val > QUESTIONS.length) {
+                jumpInput.value = state.current + 1;
+                return;
+            }
+            goTo(val - 1);
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  6.  RESTART
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function restartQuiz() {
+            state.current = 0;
+            state.answers = new Array(QUESTIONS.length).fill(null);
+            state.score = 0;
+            state.completed = false;
+
+            questionArea.style.display = 'block';
+            resultScreen.classList.remove('show');
+            document.getElementById('navControls').style.display = 'flex';
+            feedback.className = 'feedback';
+
+            renderQuestionGrid();
+            renderQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  7.  KEYBOARD SHORTCUTS & INIT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        document.addEventListener('keydown', (e) => {
+            if (state.completed) {
+                if (e.key === 'r' || e.key === 'R') restartQuiz();
+                return;
+            }
+            if (e.key === 'ArrowLeft') prevQuestion();
+            if (e.key === 'ArrowRight') nextQuestion();
+            if (e.key === 'Enter') {
+                if (document.activeElement === jumpInput) {
+                    jumpTo();
+                } else {
+                    // if no option selected, do nothing
+                }
+            }
+            // number keys 1-4 for options
+            if (e.key >= '1' && e.key <= '4') {
+                const idx = parseInt(e.key) - 1;
+                const qIdx = state.current;
+                if (state.answers[qIdx] === null && idx < QUESTIONS[qIdx].o.length) {
+                    selectOption(qIdx, idx);
+                }
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  8.  EVENT BINDINGS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        prevBtn.addEventListener('click', prevQuestion);
+        nextBtn.addEventListener('click', nextQuestion);
+        jumpBtn.addEventListener('click', jumpTo);
+        jumpInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') jumpTo(); });
+        restartBtn.addEventListener('click', restartQuiz);
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  9.  START
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        renderQuestion();
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 10.  TRIM & LOG (just for sanity)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        console.log(`✅ PI Quiz loaded with ${QUESTIONS.length} questions.`);
+    </script>
+</body>
+</html>
