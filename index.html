@@ -31,6 +31,64 @@
             width: 100%;
             padding: 36px 40px 44px;
             transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .login-screen {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            background: #ffffff;
+            border-radius: 32px;
+        }
+
+        .login-screen.hidden {
+            display: none;
+        }
+
+        .login-card {
+            width: min(100%, 360px);
+            text-align: center;
+        }
+
+        .login-card h1 {
+            color: #0b1a2e;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            color: #5a7a9a;
+            margin-bottom: 22px;
+        }
+
+        .login-card .credentials-hint {
+            margin: -12px 0 16px;
+            font-size: 13px;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border: 2px solid #dce3ef;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .login-card input:focus {
+            outline: none;
+            border-color: #2a6bb0;
+        }
+
+        .login-error {
+            min-height: 20px;
+            margin: 4px 0 12px;
+            color: #c73a3a;
+            font-size: 14px;
         }
 
         @media (max-width: 600px) {
@@ -446,6 +504,19 @@
             box-shadow: 0 10px 30px rgba(26, 67, 133, 0.30);
         }
 
+        .reset-questions-btn {
+            margin-top: 12px;
+            border: 0;
+            background: transparent;
+            color: #2a6bb0;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .selector-header .reset-questions-btn {
+            margin: 0 0 0 8px;
+        }
+
         /* ─────────── RESPONSIVE TWEAKS ─────────── */
         @media (max-width: 600px) {
             .quiz-title {
@@ -559,6 +630,7 @@
         }
 
         .question-btn.expired {
+            display: none;
             opacity: 0.35;
             cursor: not-allowed;
             color: #9ab0cc;
@@ -591,6 +663,17 @@
 <body>
 
     <div class="quiz-container" id="app">
+        <div class="login-screen" id="loginScreen">
+            <form class="login-card" id="loginForm">
+                <h1>⚡ PI Quiz</h1>
+                <p>Sign in to save your progress on this device.</p>
+                <p class="credentials-hint">ID: student &nbsp; Password: quiz123</p>
+                <input id="loginId" type="text" placeholder="User ID" autocomplete="username" required />
+                <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" required />
+                <div class="login-error" id="loginError" role="alert"></div>
+                <button class="nav-btn primary" type="submit">Sign in</button>
+            </form>
+        </div>
         <!-- HEADER -->
         <header class="quiz-header">
             <div class="quiz-title">
@@ -616,8 +699,11 @@
         <div class="question-selector">
             <div class="selector-header">
                 📋 Pick a Question
-                <span class="selector-stats">
-                    <span id="answeredCount">0</span>/<span id="totalCount">500</span> answered
+                <span>
+                    <span class="selector-stats">
+                        <span id="answeredCount">0</span>/<span id="totalCount">500</span> answered
+                    </span>
+                    <button class="reset-questions-btn" id="resetQuestionsBtn" type="button">Reset</button>
                 </span>
             </div>
             <div class="question-grid" id="questionGrid">
@@ -652,7 +738,7 @@
                 <div><div class="num red" id="rWrong">0</div><div class="label">Wrong</div></div>
                 <div><div class="num blue" id="rSkipped">0</div><div class="label">Skipped</div></div>
             </div>
-            <button class="restart-btn" id="restartBtn">🔄 Restart Quiz</button>
+            <button class="restart-btn" id="restartBtn">🔄 Reset all questions</button>
         </div>
 
         <!-- NAVIGATION -->
@@ -679,10 +765,29 @@
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         const QUESTIONS = [];
+        const questionTexts = new Set();
 
         // ----- helper to push a question -----
         function addQ(q) {
-            QUESTIONS.push(q);
+            if (questionTexts.has(q.q)) return;
+            questionTexts.add(q.q);
+
+            // Keep the order stable across refreshes while distributing correct answers.
+            let seed = 0;
+            for (let i = 0; i < q.q.length; i++) {
+                seed = (seed * 31 + q.q.charCodeAt(i)) >>> 0;
+            }
+            const options = q.o.map((text, index) => ({ text, index }));
+            for (let i = options.length - 1; i > 0; i--) {
+                seed = (seed * 1664525 + 1013904223) >>> 0;
+                const swapIndex = seed % (i + 1);
+                [options[i], options[swapIndex]] = [options[swapIndex], options[i]];
+            }
+            QUESTIONS.push({
+                q: q.q,
+                o: options.map(option => option.text),
+                a: options.findIndex(option => option.index === q.a)
+            });
         }
 
         // ----- categories & templates -----
@@ -2074,6 +2179,39 @@
             completed: false,
         };
 
+        const LOGIN_ID = 'student';
+        const LOGIN_PASSWORD = 'quiz123';
+        const SESSION_KEY = 'piQuizLoggedIn';
+        const PROGRESS_KEY = 'piQuizProgress';
+
+        function saveProgress() {
+            localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+                current: state.current,
+                answers: state.answers,
+                score: state.score,
+                completed: state.completed
+            }));
+        }
+
+        function loadProgress() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY) || 'null');
+                if (!saved || !Array.isArray(saved.answers)) return;
+                state.answers = QUESTIONS.map((question, index) =>
+                    Number.isInteger(saved.answers[index]) &&
+                    saved.answers[index] >= 0 &&
+                    saved.answers[index] < question.o.length
+                        ? saved.answers[index]
+                        : null
+                );
+                state.current = Number.isInteger(saved.current) ? saved.current : 0;
+                if (state.current < 0 || state.current >= QUESTIONS.length) state.current = 0;
+                state.completed = saved.completed === true && state.answers.every(answer => answer !== null);
+            } catch (error) {
+                console.warn('Saved quiz progress could not be loaded.', error);
+            }
+        }
+
         // DOM refs
         const $ = id => document.getElementById(id);
         const scoreDisplay = $('scoreDisplay');
@@ -2099,6 +2237,12 @@
         const rWrong = $('rWrong');
         const rSkipped = $('rSkipped');
         const restartBtn = $('restartBtn');
+        const resetQuestionsBtn = $('resetQuestionsBtn');
+        const loginScreen = $('loginScreen');
+        const loginForm = $('loginForm');
+        const loginId = $('loginId');
+        const loginPassword = $('loginPassword');
+        const loginError = $('loginError');
         const questionGrid = $('questionGrid');
         const answeredCount = $('answeredCount');
         const totalCount = $('totalCount');
@@ -2174,6 +2318,10 @@
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         function renderQuestion() {
+            if (state.answers[state.current] !== null && !state.completed) {
+                const nextUnanswered = state.answers.findIndex(answer => answer === null);
+                if (nextUnanswered !== -1) state.current = nextUnanswered;
+            }
             const q = QUESTIONS[state.current];
             const idx = state.current;
             const selected = state.answers[idx];
@@ -2259,6 +2407,7 @@
         function selectOption(qIdx, optIdx) {
             if (state.answers[qIdx] !== null) return;
             state.answers[qIdx] = optIdx;
+            saveProgress();
             if (optIdx === QUESTIONS[qIdx].a) state.score++;
             updateQuestionButtonState(qIdx); // Update grid immediately after answer
             renderQuestion();
@@ -2267,6 +2416,7 @@
                 setTimeout(() => {
                     if (state.answers[qIdx + 1] === null) {
                         state.current = qIdx + 1;
+                        saveProgress();
                         renderQuestion();
                     }
                 }, 450);
@@ -2291,6 +2441,7 @@
             const allAnswered = state.answers.every(a => a !== null);
             if (allAnswered && !state.completed) {
                 state.completed = true;
+                saveProgress();
                 showResults();
             }
         }
@@ -2334,6 +2485,7 @@
             if (index < 0 || index >= QUESTIONS.length) return;
             if (state.completed) return;
             state.current = index;
+            saveProgress();
             renderQuestion();
         }
 
@@ -2348,6 +2500,7 @@
                 const allAnswered = state.answers.every(a => a !== null);
                 if (allAnswered) {
                     state.completed = true;
+                    saveProgress();
                     showResults();
                     return;
                 } else {
@@ -2369,6 +2522,7 @@
                     }
                     // all answered but somehow not completed
                     state.completed = true;
+                    saveProgress();
                     showResults();
                     return;
                 }
@@ -2417,6 +2571,7 @@
             state.answers = new Array(QUESTIONS.length).fill(null);
             state.score = 0;
             state.completed = false;
+            saveProgress();
 
             questionArea.style.display = 'block';
             resultScreen.classList.remove('show');
@@ -2465,13 +2620,35 @@
         jumpBtn.addEventListener('click', jumpTo);
         jumpInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') jumpTo(); });
         restartBtn.addEventListener('click', restartQuiz);
+        resetQuestionsBtn.addEventListener('click', restartQuiz);
+
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (loginId.value.trim() !== LOGIN_ID || loginPassword.value !== LOGIN_PASSWORD) {
+                loginError.textContent = 'Invalid ID or password.';
+                return;
+            }
+            localStorage.setItem(SESSION_KEY, 'true');
+            loginError.textContent = '';
+            loginScreen.classList.add('hidden');
+            loadProgress();
+            updateScore();
+            renderQuestionGrid();
+            renderQuestion();
+            if (state.completed) showResults();
+        });
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         //  9.  START
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        renderQuestionGrid();
-        renderQuestion();
+        if (localStorage.getItem(SESSION_KEY) === 'true') {
+            loginScreen.classList.add('hidden');
+            loadProgress();
+            renderQuestionGrid();
+            renderQuestion();
+            if (state.completed) showResults();
+        }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // 10.  TRIM & LOG (just for sanity)
